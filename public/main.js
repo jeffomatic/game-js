@@ -130,9 +130,17 @@ Camera.prototype.simulate = function(delta) {
   if (pitch != 0 || yaw != 0 || roll != 0) {
     var rotDelta = quat.create();
 
-    if (pitch != 0) quat.rotateX(rotDelta, rotDelta, pitch);
-    if (yaw != 0) quat.rotateY(rotDelta, rotDelta, yaw);
-    if (roll != 0) quat.rotateZ(rotDelta, rotDelta, roll);
+    if (pitch != 0) {
+      quat.rotateX(rotDelta, rotDelta, pitch);
+    }
+
+    if (yaw != 0) {
+      quat.rotateY(rotDelta, rotDelta, yaw);
+    }
+
+    if (roll != 0) {
+      quat.rotateZ(rotDelta, rotDelta, roll);
+    }
 
     var q = quat.multiply(quat.create(), this.transform.rot, rotDelta);
     quat.normalize(q, q);
@@ -344,6 +352,9 @@ function main() {
     var drawList = [ 'cube' ];
 
     // Depth pass
+    gl.depthFunc(gl.LESS);
+    gl.colorMask(false, false, false, false);
+
     for (var m in drawList) {
       var modelId = drawList[m];
       var buffers = modelBuffers[modelId];
@@ -356,13 +367,14 @@ function main() {
         gl.vertexAttribPointer(posAttrib, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(posAttrib);
 
-        gl.depthFunc(gl.LESS);
-        gl.colorMask(false, false, false, false);
         gl.drawArrays(gl.TRIANGLE_FAN, 0, bufferData.vertCount);
       }
     }
 
     // Color pass
+    gl.depthFunc(gl.LEQUAL);
+    gl.colorMask(true, true, true, true);
+
     for (var m in drawList) {
       var modelId = drawList[m];
       var buffers = modelBuffers[modelId];
@@ -375,8 +387,6 @@ function main() {
         gl.vertexAttribPointer(posAttrib, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(posAttrib);
 
-        gl.depthFunc(gl.LEQUAL);
-        gl.colorMask(true, true, true, true);
         gl.drawArrays(gl.LINE_LOOP, 0, bufferData.vertCount);
       }
     }
