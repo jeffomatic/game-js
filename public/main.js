@@ -121,9 +121,9 @@ Camera.prototype.simulate = function(delta) {
   }
 
   // Roll
-  if (keyState[this.keyMap.rollCW]) {
+  if (keyState[this.keyMap.rollCCW]) {
     roll = +frameRot;
-  } else if (keyState[this.keyMap.rollCCW]) {
+  } else if (keyState[this.keyMap.rollCW]) {
     roll = -frameRot;
   }
 
@@ -175,54 +175,80 @@ Camera.prototype.simulate = function(delta) {
 }
 
 // Models are composed of faces.
-// Faces are arrays of GL_LINE_LOOP verts.
-models = {
+// Faces are arrays of verts. For effective wireframe rendering with opaque
+// faces, the verts should be ordered to support both LINE_LOOP (for wireframes)
+// and TRIANGLE_FAN with CCW backface culling (for depth buffering of opaque
+// surfaces).
+var models = {
   cube: [
     [
+      // X/Y plane, +Z
       +0.5, +0.5, +0.5,
       -0.5, +0.5, +0.5,
       -0.5, -0.5, +0.5,
       +0.5, -0.5, +0.5,
     ], [
-      +0.5, +0.5, -0.5,
-      -0.5, +0.5, -0.5,
-      -0.5, +0.5, +0.5,
-      +0.5, +0.5, +0.5,
-    ], [
-      +0.5, -0.5, -0.5,
-      -0.5, -0.5, -0.5,
-      -0.5, +0.5, -0.5,
-      +0.5, +0.5, -0.5,
-    ], [
+      // X/Z plane, -Y
       +0.5, -0.5, +0.5,
       -0.5, -0.5, +0.5,
       -0.5, -0.5, -0.5,
       +0.5, -0.5, -0.5,
     ], [
-      -0.5, +0.5, +0.5,
+      // X/Y plane, -Z
+      +0.5, -0.5, -0.5,
+      -0.5, -0.5, -0.5,
       -0.5, +0.5, -0.5,
+      +0.5, +0.5, -0.5,
+    ], [
+      // X/Z plane, +Y
+      +0.5, +0.5, -0.5,
+      -0.5, +0.5, -0.5,
+      -0.5, +0.5, +0.5,
+      +0.5, +0.5, +0.5,
+    ], [
+      // Y/Z plane, -X
       -0.5, -0.5, -0.5,
       -0.5, -0.5, +0.5,
+      -0.5, +0.5, +0.5,
+      -0.5, +0.5, -0.5,
     ], [
-      +0.5, +0.5, -0.5,
+      // Y/Z plane, +X
       +0.5, +0.5, +0.5,
       +0.5, -0.5, +0.5,
       +0.5, -0.5, -0.5,
+      +0.5, +0.5, -0.5,
     ]
-  ],
-}
+  ]
+};
 
 var canvas;
 var gl;
-var program;
 var keyState;
 var camera;
+var vertBuffer;
+var modelBuffers;
 
 function main() {
   function initModels() {
-    // Post-process models into Float32Array objects
-    for (k in models) {
-      models[k] = models[k].map(function(face) { return new Float32Array(face); });
+    modelBuffers = {};
+
+    // Pre-process models into GL attrib array
+    for (var k in models) {
+      var faces = models[k];
+      modelBuffers[k] = [];
+
+      for (var f in faces) {
+        var faceVerts = new Float32Array(faces[f]);
+        var buf = gl.createBuffer();
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, faceVerts, gl.STATIC_DRAW);
+
+        modelBuffers[k].push({
+          vertCount: faceVerts.length / 3,
+          glBuffer: buf
+        });
+      }
     }
   }
 
@@ -235,6 +261,9 @@ function main() {
     // Generate canvas DOM element
     canvas = document.createElement('canvas');
     document.body.appendChild(canvas);
+
+    canvas.width = 1000;
+    canvas.height = 600;
 
     // Extract GL context
     gl = canvas.getContext("webgl");
@@ -253,6 +282,7 @@ function main() {
 
     // Global rendering state
     gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.enable(gl.DEPTH_TEST);
   }
 
   function initInputHandling() {
@@ -300,41 +330,63 @@ function main() {
   }
 
   function render(delta) {
+    // Clear previous frame
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     // Generate and set MVP matrix
     var matView = mat4.invert(mat4.create(), camera.transform.transform);
-    var matProj = mat4.perspective(mat4.create(), Math.PI/2, canvas.width/canvas.height, 0.25, 1000.0);
+    var matProj = mat4.perspective(mat4.create(), Math.PI/2, canvas.width/canvas.height, 0.25, 300.0);
     var matMVP = mat4.multiply(mat4.create(), matProj, matView);
     gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, 'matMVP'), false, matMVP);
 
     // Per-model rendering
-    var drawList = [ models.cube ];
-    for (m in drawList) {
-      var faces = drawList[m];
+    var drawList = [ 'cube' ];
 
-      for (f in faces) {
-        var faceVerts = faces[f];
-        var vertBuffer = gl.createBuffer();
+    // Depth pass
+    for (var m in drawList) {
+      var modelId = drawList[m];
+      var buffers = modelBuffers[modelId];
+
+      for (var b in buffers) {
+        var bufferData = buffers[b];
+        gl.bindBuffer(gl.ARRAY_BUFFER, bufferData.glBuffer);
+
         var posAttrib = gl.getAttribLocation(shaderProgram, 'v3Pos');
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, faceVerts, gl.STATIC_DRAW);
         gl.vertexAttribPointer(posAttrib, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(posAttrib);
 
-        gl.lineWidth(1.0);
-        gl.drawArrays(gl.LINE_LOOP, 0, faceVerts.length / 3);
+        gl.depthFunc(gl.LESS);
+        gl.colorMask(false, false, false, false);
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, bufferData.vertCount);
+      }
+    }
+
+    // Color pass
+    for (var m in drawList) {
+      var modelId = drawList[m];
+      var buffers = modelBuffers[modelId];
+
+      for (var b in buffers) {
+        var bufferData = buffers[b];
+        gl.bindBuffer(gl.ARRAY_BUFFER, bufferData.glBuffer);
+
+        var posAttrib = gl.getAttribLocation(shaderProgram, 'v3Pos');
+        gl.vertexAttribPointer(posAttrib, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(posAttrib);
+
+        gl.depthFunc(gl.LEQUAL);
+        gl.colorMask(true, true, true, true);
+        gl.drawArrays(gl.LINE_LOOP, 0, bufferData.vertCount);
       }
     }
   }
 
-  initModels();
-  initCamera();
   initRendering();
+  initModels();
+
   initInputHandling();
+  initCamera();
+
   gameLoop();
 };
