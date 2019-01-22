@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/jeffomatic/game-js#readme",
   "dependencies": {
+    "@types/gl-matrix": "^2.4.4",
     "gl-matrix": "^3.0.0"
   },
   "devDependencies": {
