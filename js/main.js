@@ -1,4 +1,4 @@
-import {vec3, vec4, mat3, mat4, quat} from './gl-matrix'
+import {vec3, vec4, mat3, mat4, quat} from 'gl-matrix'
 
 const vertexShader = `
 attribute vec3 v3Pos;
