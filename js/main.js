@@ -1,3 +1,20 @@
+import {vec3, vec4, mat3, mat4, quat} from './gl-matrix'
+
+const vertexShader = `
+attribute vec3 v3Pos;
+uniform mat4 matMVP;
+
+void main(void) {
+  gl_Position = matMVP * vec4(v3Pos, 1.0);
+}
+`
+
+const fragShader = `
+void main(void) {
+  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+}
+`
+
 function compileShader(gl, type, src) {
   var shader = gl.createShader(type);
   gl.shaderSource(shader, src);
@@ -39,20 +56,20 @@ Transform.prototype.update = function() {
   if (!this.dirty) return;
 
   // 3x3 scale matrix
-  s = mat3.create();
+  let s = mat3.create();
   s[0*3+0] = this.scale[0];
   s[1*3+1] = this.scale[1];
   s[2*3+2] = this.scale[2];
 
   // 3x3 rotation matrix
-  r = mat3.fromQuat(mat3.create(), this.rot)
+  let r = mat3.fromQuat(mat3.create(), this.rot)
 
   // 3x3 scale-then-rotate matrix
-  rs = mat3.multiply(mat3.create(), r, s);
+  let rs = mat3.multiply(mat3.create(), r, s);
 
   // 4x4 scale-then-rotate-then-translate matrix
-  t = this.transform;
-  tr = this.translate;
+  let t = this.transform;
+  let tr = this.translate;
 
   t[0*4+0] = rs[0*3+0]; t[0*4+1] = rs[0*3+1]; t[0*4+2] = rs[0*3+2]; t[0*4+3] = 0;
   t[1*4+0] = rs[1*3+0]; t[1*4+1] = rs[1*3+1]; t[1*4+2] = rs[1*3+2]; t[1*4+3] = 0;
@@ -235,6 +252,7 @@ var keyState;
 var camera;
 var vertBuffer;
 var modelBuffers;
+var shaderProgram;
 
 function main() {
   function initModels() {
@@ -281,8 +299,8 @@ function main() {
     }
 
     // Compile shaders
-    var vShader = compileShader(gl, gl.VERTEX_SHADER, document.querySelector('#shader-vs').textContent)
-    var fShader = compileShader(gl, gl.FRAGMENT_SHADER, document.querySelector('#shader-fs').textContent);
+    var vShader = compileShader(gl, gl.VERTEX_SHADER, vertexShader)
+    var fShader = compileShader(gl, gl.FRAGMENT_SHADER, fragShader);
 
     // Load shader program
     shaderProgram = linkProgram(gl, [vShader, fShader]);
@@ -400,3 +418,5 @@ function main() {
 
   gameLoop();
 };
+
+main();
