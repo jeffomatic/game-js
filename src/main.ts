@@ -32,64 +32,71 @@ function linkProgram(gl: WebGLRenderingContext, shaders: Array<WebGLShader>): We
   return program;
 }
 
-function Transform() {
-  this.translate = vec4.create()
-  this.scale = vec4.create(); vec4.set(this.scale, 1, 1, 1, 1);
-  this.rot = quat.create(); quat.identity(this.rot);
-  this.transform = mat4.create();
-  this.dirty = true;
-  this.update();
+class Transform {
+  translate: vec4;
+  scale: vec4;
+  rot: quat;
+  transform: mat4;
+  dirty: boolean;
+
+  constructor() {
+    this.translate = vec4.create()
+    this.scale = vec4.create(); vec4.set(this.scale, 1, 1, 1, 1);
+    this.rot = quat.create(); quat.identity(this.rot);
+    this.transform = mat4.create();
+    this.dirty = true;
+    this.update();
+  }
+
+  update() {
+    if (!this.dirty) return;
+
+    // 3x3 scale matrix
+    let s = mat3.create();
+    s[0*3+0] = this.scale[0];
+    s[1*3+1] = this.scale[1];
+    s[2*3+2] = this.scale[2];
+
+    // 3x3 rotation matrix
+    let r = mat3.fromQuat(mat3.create(), this.rot)
+
+    // 3x3 scale-then-rotate matrix
+    let rs = mat3.multiply(mat3.create(), r, s);
+
+    // 4x4 scale-then-rotate-then-translate matrix
+    let t = this.transform;
+    let tr = this.translate;
+
+    t[0*4+0] = rs[0*3+0]; t[0*4+1] = rs[0*3+1]; t[0*4+2] = rs[0*3+2]; t[0*4+3] = 0;
+    t[1*4+0] = rs[1*3+0]; t[1*4+1] = rs[1*3+1]; t[1*4+2] = rs[1*3+2]; t[1*4+3] = 0;
+    t[2*4+0] = rs[2*3+0]; t[2*4+1] = rs[2*3+1]; t[2*4+2] = rs[2*3+2]; t[2*4+3] = 0;
+    t[3*4+0] = tr[0];     t[3*4+1] = tr[1];     t[3*4+2] = tr[2];     t[3*4+3] = 1;
+
+    this.dirty = false;
+  }
+
+  setTranslate(v: vec4): void {
+    this.dirty = true;
+    vec4.copy(this.translate, v);
+  }
+
+  setScale(v: vec4): void {
+    this.dirty = true;
+    vec4.copy(this.scale, v);
+  }
+
+  setRot(q: quat): void {
+    this.dirty = true;
+    quat.copy(this.rot, q);
+  }
 }
 
-Transform.prototype.update = function() {
-  if (!this.dirty) return;
+class Camera {
+  transform: Transform;
+  moveSpeed: number;
+  rotSpeed: number;
 
-  // 3x3 scale matrix
-  let s = mat3.create();
-  s[0*3+0] = this.scale[0];
-  s[1*3+1] = this.scale[1];
-  s[2*3+2] = this.scale[2];
-
-  // 3x3 rotation matrix
-  let r = mat3.fromQuat(mat3.create(), this.rot)
-
-  // 3x3 scale-then-rotate matrix
-  let rs = mat3.multiply(mat3.create(), r, s);
-
-  // 4x4 scale-then-rotate-then-translate matrix
-  let t = this.transform;
-  let tr = this.translate;
-
-  t[0*4+0] = rs[0*3+0]; t[0*4+1] = rs[0*3+1]; t[0*4+2] = rs[0*3+2]; t[0*4+3] = 0;
-  t[1*4+0] = rs[1*3+0]; t[1*4+1] = rs[1*3+1]; t[1*4+2] = rs[1*3+2]; t[1*4+3] = 0;
-  t[2*4+0] = rs[2*3+0]; t[2*4+1] = rs[2*3+1]; t[2*4+2] = rs[2*3+2]; t[2*4+3] = 0;
-  t[3*4+0] = tr[0];     t[3*4+1] = tr[1];     t[3*4+2] = tr[2];     t[3*4+3] = 1;
-
-  this.dirty = false;
-}
-
-Transform.prototype.setTranslate = function(v: vec4): void {
-  this.dirty = true;
-  vec4.copy(this.translate, v);
-}
-
-Transform.prototype.setScale = function(v: vec4): void {
-  this.dirty = true;
-  vec4.copy(this.scale, v);
-}
-
-Transform.prototype.setRot = function(q: quat): void {
-  this.dirty = true;
-  quat.copy(this.rot, q);
-}
-
-function Camera() {
-  this.transform = new Transform();
-
-  this.moveSpeed = 1;
-  this.rotSpeed = 1;
-
-  this.keyMap = {
+  static keyMap = {
     forward: 87, // w
     left: 65, // a
     back: 83, // s
@@ -103,89 +110,95 @@ function Camera() {
     rollCCW: 188, // ,
     rollCW: 190 // .
   };
-}
 
-Camera.prototype.simulate = function(delta: number) {
-  // I. Update rotation
-  let pitch = 0;
-  let yaw = 0;
-  let roll = 0;
-  let frameRot = delta * this.rotSpeed;
-
-  // Pitch
-  if (keyState[this.keyMap.pitchUp]) {
-    pitch = +frameRot;
-  } else if (keyState[this.keyMap.pitchDown]) {
-    pitch = -frameRot;
+  constructor() {
+    this.transform = new Transform();
+    this.moveSpeed = 1;
+    this.rotSpeed = 1;
   }
 
-  // Yaw
-  if (keyState[this.keyMap.yawLeft]) {
-    yaw = +frameRot;
-  } else if (keyState[this.keyMap.yawRight]) {
-    yaw = -frameRot;
-  }
+  simulate(delta: number) {
+    // I. Update rotation
+    let pitch = 0;
+    let yaw = 0;
+    let roll = 0;
+    let frameRot = delta * this.rotSpeed;
 
-  // Roll
-  if (keyState[this.keyMap.rollCCW]) {
-    roll = +frameRot;
-  } else if (keyState[this.keyMap.rollCW]) {
-    roll = -frameRot;
-  }
-
-  if (pitch != 0 || yaw != 0 || roll != 0) {
-    let rotDelta = quat.create();
-
-    if (pitch != 0) {
-      quat.rotateX(rotDelta, rotDelta, pitch);
+    // Pitch
+    if (keyState[Camera.keyMap.pitchUp]) {
+      pitch = +frameRot;
+    } else if (keyState[Camera.keyMap.pitchDown]) {
+      pitch = -frameRot;
     }
 
-    if (yaw != 0) {
-      quat.rotateY(rotDelta, rotDelta, yaw);
+    // Yaw
+    if (keyState[Camera.keyMap.yawLeft]) {
+      yaw = +frameRot;
+    } else if (keyState[Camera.keyMap.yawRight]) {
+      yaw = -frameRot;
     }
 
-    if (roll != 0) {
-      quat.rotateZ(rotDelta, rotDelta, roll);
+    // Roll
+    if (keyState[Camera.keyMap.rollCCW]) {
+      roll = +frameRot;
+    } else if (keyState[Camera.keyMap.rollCW]) {
+      roll = -frameRot;
     }
 
-    let q = quat.multiply(quat.create(), this.transform.rot, rotDelta);
-    quat.normalize(q, q);
-    this.transform.setRot(q);
+    if (pitch != 0 || yaw != 0 || roll != 0) {
+      let rotDelta = quat.create();
+
+      if (pitch != 0) {
+        quat.rotateX(rotDelta, rotDelta, pitch);
+      }
+
+      if (yaw != 0) {
+        quat.rotateY(rotDelta, rotDelta, yaw);
+      }
+
+      if (roll != 0) {
+        quat.rotateZ(rotDelta, rotDelta, roll);
+      }
+
+      let q = quat.multiply(quat.create(), this.transform.rot, rotDelta);
+      quat.normalize(q, q);
+      this.transform.setRot(q);
+    }
+
+    // II. Update translation
+    let frameSpeed = delta * this.moveSpeed;
+    let dispDelta = vec4.create();
+
+    // Forward
+    if (keyState[Camera.keyMap.back]) {
+      dispDelta[2] = +frameSpeed;
+    } else if (keyState[Camera.keyMap.forward]) {
+      dispDelta[2] = -frameSpeed;
+    }
+
+    // Strafe
+    if (keyState[Camera.keyMap.right]) {
+      dispDelta[0] = +frameSpeed;
+    } else if (keyState[Camera.keyMap.left]) {
+      dispDelta[0] = -frameSpeed;
+    }
+
+    // Asc/desc
+    if (keyState[Camera.keyMap.up]) {
+      dispDelta[1] = +frameSpeed;
+    } else if (keyState[Camera.keyMap.down]) {
+      dispDelta[1] = -frameSpeed;
+    }
+
+    if (dispDelta[0] != 0 || dispDelta[1] != 0 || dispDelta[2] != 0) {
+      // Rotate the displacement by the current orientation
+      let orientedDisp = vec4.transformQuat(vec4.create(), dispDelta, this.transform.rot);
+      let newTrans = vec4.add(vec4.create(), this.transform.translate, orientedDisp);
+      this.transform.setTranslate(newTrans);
+    }
+
+    this.transform.update();
   }
-
-  // II. Update translation
-  let frameSpeed = delta * this.moveSpeed;
-  let dispDelta = vec4.create();
-
-  // Forward
-  if (keyState[this.keyMap.back]) {
-    dispDelta[2] = +frameSpeed;
-  } else if (keyState[this.keyMap.forward]) {
-    dispDelta[2] = -frameSpeed;
-  }
-
-  // Strafe
-  if (keyState[this.keyMap.right]) {
-    dispDelta[0] = +frameSpeed;
-  } else if (keyState[this.keyMap.left]) {
-    dispDelta[0] = -frameSpeed;
-  }
-
-  // Asc/desc
-  if (keyState[this.keyMap.up]) {
-    dispDelta[1] = +frameSpeed;
-  } else if (keyState[this.keyMap.down]) {
-    dispDelta[1] = -frameSpeed;
-  }
-
-  if (dispDelta[0] != 0 || dispDelta[1] != 0 || dispDelta[2] != 0) {
-    // Rotate the displacement by the current orientation
-    let orientedDisp = vec4.transformQuat(vec4.create(), dispDelta, this.transform.rot);
-    let newTrans = vec4.add(vec4.create(), this.transform.translate, orientedDisp);
-    this.transform.setTranslate(newTrans);
-  }
-
-  this.transform.update();
 }
 
 // Models are composed of faces.
