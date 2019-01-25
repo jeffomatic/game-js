@@ -1,16 +1,16 @@
 import { mat3, mat4, quat, vec4 } from "gl-matrix";
 
 // @ts-ignore: parcel shader import
-import fragmentShader from "./shaders/fragment.glsl";
+import fragmentGlsl from "./shaders/fragment.glsl";
 // @ts-ignore: parcel shader import
-import vertexShader from "./shaders/vertex.glsl";
+import vertexGlsl from "./shaders/vertex.glsl";
 
 function compileShader(
   gl: WebGLRenderingContext,
   type: number,
-  src: string
+  src: string,
 ): WebGLShader {
-  let shader = gl.createShader(type);
+  const shader = gl.createShader(type);
   gl.shaderSource(shader, src);
   gl.compileShader(shader);
 
@@ -23,11 +23,11 @@ function compileShader(
 
 function linkProgram(
   gl: WebGLRenderingContext,
-  shaders: Array<WebGLShader>
+  shaders: WebGLShader[],
 ): WebGLProgram {
-  let program = gl.createProgram();
+  const program = gl.createProgram();
 
-  for (let i in shaders) {
+  for (const i in shaders) {
     gl.attachShader(program, shaders[i]);
   }
 
@@ -64,20 +64,20 @@ class Transform {
     }
 
     // 3x3 scale matrix
-    let s = mat3.create();
+    const s = mat3.create();
     s[0 * 3 + 0] = this.scale[0];
     s[1 * 3 + 1] = this.scale[1];
     s[2 * 3 + 2] = this.scale[2];
 
     // 3x3 rotation matrix
-    let r = mat3.fromQuat(mat3.create(), this.rot);
+    const r = mat3.fromQuat(mat3.create(), this.rot);
 
     // 3x3 scale-then-rotate matrix
-    let rs = mat3.multiply(mat3.create(), r, s);
+    const rs = mat3.multiply(mat3.create(), r, s);
 
     // 4x4 scale-then-rotate-then-translate matrix
-    let t = this.transform;
-    let tr = this.translate;
+    const t = this.transform;
+    const tr = this.translate;
 
     t[0 * 4 + 0] = rs[0 * 3 + 0];
     t[0 * 4 + 1] = rs[0 * 3 + 1];
@@ -132,7 +132,7 @@ class Camera {
     yawLeft: 37, // LEFT
     yawRight: 39, // RIGHT
     rollCCW: 188, // ,
-    rollCW: 190 // .
+    rollCW: 190, // .
   };
 
   constructor() {
@@ -146,7 +146,7 @@ class Camera {
     let pitch = 0;
     let yaw = 0;
     let roll = 0;
-    let frameRot = delta * this.rotSpeed;
+    const frameRot = delta * this.rotSpeed;
 
     // Pitch
     if (keyState[Camera.keyMap.pitchUp]) {
@@ -162,6 +162,8 @@ class Camera {
       yaw = -frameRot;
     }
 
+    !true && console.log("");
+
     // Roll
     if (keyState[Camera.keyMap.rollCCW]) {
       roll = +frameRot;
@@ -169,29 +171,29 @@ class Camera {
       roll = -frameRot;
     }
 
-    if (pitch != 0 || yaw != 0 || roll != 0) {
-      let rotDelta = quat.create();
+    if (pitch !== 0 || yaw !== 0 || roll !== 0) {
+      const rotDelta = quat.create();
 
-      if (pitch != 0) {
+      if (pitch !== 0) {
         quat.rotateX(rotDelta, rotDelta, pitch);
       }
 
-      if (yaw != 0) {
+      if (yaw !== 0) {
         quat.rotateY(rotDelta, rotDelta, yaw);
       }
 
-      if (roll != 0) {
+      if (roll !== 0) {
         quat.rotateZ(rotDelta, rotDelta, roll);
       }
 
-      let q = quat.multiply(quat.create(), this.transform.rot, rotDelta);
+      const q = quat.multiply(quat.create(), this.transform.rot, rotDelta);
       quat.normalize(q, q);
       this.transform.setRot(q);
     }
 
     // II. Update translation
-    let frameSpeed = delta * this.moveSpeed;
-    let dispDelta = vec4.create();
+    const frameSpeed = delta * this.moveSpeed;
+    const dispDelta = vec4.create();
 
     // Forward
     if (keyState[Camera.keyMap.back]) {
@@ -214,17 +216,17 @@ class Camera {
       dispDelta[1] = -frameSpeed;
     }
 
-    if (dispDelta[0] != 0 || dispDelta[1] != 0 || dispDelta[2] != 0) {
+    if (dispDelta[0] !== 0 || dispDelta[1] !== 0 || dispDelta[2] !== 0) {
       // Rotate the displacement by the current orientation
-      let orientedDisp = vec4.transformQuat(
+      const orientedDisp = vec4.transformQuat(
         vec4.create(),
         dispDelta,
-        this.transform.rot
+        this.transform.rot,
       );
-      let newTrans = vec4.add(
+      const newTrans = vec4.add(
         vec4.create(),
         this.transform.translate,
-        orientedDisp
+        orientedDisp,
       );
       this.transform.setTranslate(newTrans);
     }
@@ -238,7 +240,7 @@ class Camera {
 // faces, the verts should be ordered to support both LINE_LOOP (for wireframes)
 // and TRIANGLE_FAN with CCW backface culling (for depth buffering of opaque
 // surfaces).
-let models = {
+const models = {
   cube: [
     [
       // X/Y plane, +Z
@@ -253,7 +255,7 @@ let models = {
       +0.5,
       +0.5,
       -0.5,
-      +0.5
+      +0.5,
     ],
     [
       // X/Z plane, -Y
@@ -268,7 +270,7 @@ let models = {
       -0.5,
       +0.5,
       -0.5,
-      -0.5
+      -0.5,
     ],
     [
       // X/Y plane, -Z
@@ -283,7 +285,7 @@ let models = {
       -0.5,
       +0.5,
       +0.5,
-      -0.5
+      -0.5,
     ],
     [
       // X/Z plane, +Y
@@ -298,7 +300,7 @@ let models = {
       +0.5,
       +0.5,
       +0.5,
-      +0.5
+      +0.5,
     ],
     [
       // Y/Z plane, -X
@@ -313,7 +315,7 @@ let models = {
       +0.5,
       -0.5,
       +0.5,
-      -0.5
+      -0.5,
     ],
     [
       // Y/Z plane, +X
@@ -328,17 +330,22 @@ let models = {
       -0.5,
       +0.5,
       +0.5,
-      -0.5
-    ]
-  ]
+      -0.5,
+    ],
+  ],
 };
+
+interface ModelBuffer {
+  vertCount: number;
+  glBuffer: WebGLBuffer;
+}
 
 let canvas: HTMLCanvasElement;
 let gl: WebGLRenderingContext;
 let keyState: { [key: number]: boolean };
 let camera: Camera;
 let modelBuffers: {
-  [key: string]: Array<{ vertCount: number; glBuffer: WebGLBuffer }>;
+  [key: string]: ModelBuffer[];
 };
 let shaderProgram: WebGLProgram;
 
@@ -347,20 +354,20 @@ function main() {
     modelBuffers = {};
 
     // Pre-process models into GL attrib array
-    for (let k in models) {
-      let faces = models[k];
+    for (const k in models) {
+      const faces = models[k];
       modelBuffers[k] = [];
 
-      for (let f in faces) {
-        let faceVerts = new Float32Array(faces[f]);
-        let buf = gl.createBuffer();
+      for (const f in faces) {
+        const faceVerts = new Float32Array(faces[f]);
+        const buf = gl.createBuffer();
 
         gl.bindBuffer(gl.ARRAY_BUFFER, buf);
         gl.bufferData(gl.ARRAY_BUFFER, faceVerts, gl.STATIC_DRAW);
 
         modelBuffers[k].push({
           vertCount: faceVerts.length / 3,
-          glBuffer: buf
+          glBuffer: buf,
         });
       }
     }
@@ -383,12 +390,12 @@ function main() {
     gl = canvas.getContext("webgl");
 
     if (!gl) {
-      throw new Error("Couldn't initialize WebGL.");
+      throw new Error("Could not initialize WebGL.");
     }
 
     // Compile shaders
-    let vShader = compileShader(gl, gl.VERTEX_SHADER, vertexShader);
-    let fShader = compileShader(gl, gl.FRAGMENT_SHADER, fragmentShader);
+    const vShader = compileShader(gl, gl.VERTEX_SHADER, vertexGlsl);
+    const fShader = compileShader(gl, gl.FRAGMENT_SHADER, fragmentGlsl);
 
     // Load shader program
     shaderProgram = linkProgram(gl, [vShader, fShader]);
@@ -402,11 +409,11 @@ function main() {
   function initInputHandling() {
     keyState = {};
 
-    document.addEventListener("focusout", function() {
+    document.addEventListener("focusout", () => {
       keyState = {};
     });
 
-    document.addEventListener("keydown", function(event) {
+    document.addEventListener("keydown", (event) => {
       if (keyState[event.which]) {
         return;
       }
@@ -414,7 +421,7 @@ function main() {
       keyState[event.which] = true;
     });
 
-    document.addEventListener("keyup", function(event) {
+    document.addEventListener("keyup", (event) => {
       delete keyState[event.which];
     });
   }
@@ -425,7 +432,7 @@ function main() {
   function gameLoop() {
     requestAnimationFrame(gameLoop);
 
-    let currentTime = Date.now();
+    const currentTime = Date.now();
     let delta = (currentTime - lastTimeSample) / 1000; // use seconds
     if (firstLoop) {
       delta = 0;
@@ -448,37 +455,37 @@ function main() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     // Generate and set MVP matrix
-    let matView = mat4.invert(mat4.create(), camera.transform.transform);
-    let matProj = mat4.perspective(
+    const matView = mat4.invert(mat4.create(), camera.transform.transform);
+    const matProj = mat4.perspective(
       mat4.create(),
       Math.PI / 2,
       canvas.width / canvas.height,
       0.25,
-      300.0
+      300.0,
     );
-    let matMVP = mat4.multiply(mat4.create(), matProj, matView);
+    const matMVP = mat4.multiply(mat4.create(), matProj, matView);
     gl.uniformMatrix4fv(
       gl.getUniformLocation(shaderProgram, "matMVP"),
       false,
-      matMVP
+      matMVP,
     );
 
     // Per-model rendering
-    let drawList = ["cube"];
+    const drawList = ["cube"];
 
     // Depth pass
     gl.depthFunc(gl.LESS);
     gl.colorMask(false, false, false, false);
 
-    for (let m in drawList) {
-      let modelId = drawList[m];
-      let buffers = modelBuffers[modelId];
+    for (const m in drawList) {
+      const modelId = drawList[m];
+      const buffers = modelBuffers[modelId];
 
-      for (let b in buffers) {
-        let bufferData = buffers[b];
+      for (const b in buffers) {
+        const bufferData = buffers[b];
         gl.bindBuffer(gl.ARRAY_BUFFER, bufferData.glBuffer);
 
-        let posAttrib = gl.getAttribLocation(shaderProgram, "v3Pos");
+        const posAttrib = gl.getAttribLocation(shaderProgram, "v3Pos");
         gl.vertexAttribPointer(posAttrib, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(posAttrib);
 
@@ -490,15 +497,15 @@ function main() {
     gl.depthFunc(gl.LEQUAL);
     gl.colorMask(true, true, true, true);
 
-    for (let m in drawList) {
-      let modelId = drawList[m];
-      let buffers = modelBuffers[modelId];
+    for (const m in drawList) {
+      const modelId = drawList[m];
+      const buffers = modelBuffers[modelId];
 
-      for (let b in buffers) {
-        let bufferData = buffers[b];
+      for (const b in buffers) {
+        const bufferData = buffers[b];
         gl.bindBuffer(gl.ARRAY_BUFFER, bufferData.glBuffer);
 
-        let posAttrib = gl.getAttribLocation(shaderProgram, "v3Pos");
+        const posAttrib = gl.getAttribLocation(shaderProgram, "v3Pos");
         gl.vertexAttribPointer(posAttrib, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(posAttrib);
 
