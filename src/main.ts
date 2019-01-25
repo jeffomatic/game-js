@@ -248,13 +248,12 @@ let models = {
   ]
 };
 
-let canvas;
-let gl;
-let keyState;
-let camera;
-let vertBuffer;
-let modelBuffers;
-let shaderProgram;
+let canvas: HTMLCanvasElement;
+let gl: WebGLRenderingContext;
+let keyState: { [key: number]: boolean };
+let camera: Camera;
+let modelBuffers: { [key: string]: Array<{ vertCount: number, glBuffer: WebGLBuffer }> };
+let shaderProgram: WebGLProgram;
 
 function main() {
   function initModels() {
