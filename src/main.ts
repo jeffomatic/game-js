@@ -1,9 +1,9 @@
-import { mat3, mat4, quat, vec4 } from "gl-matrix";
+import { mat3, mat4, quat, vec4 } from 'gl-matrix';
 
 // @ts-ignore: parcel shader import
-import fragmentGlsl from "./shaders/fragment.glsl";
+import fragmentGlsl from './shaders/fragment.glsl';
 // @ts-ignore: parcel shader import
-import vertexGlsl from "./shaders/vertex.glsl";
+import vertexGlsl from './shaders/vertex.glsl';
 
 function compileShader(
   gl: WebGLRenderingContext,
@@ -162,7 +162,7 @@ class Camera {
       yaw = -frameRot;
     }
 
-    !true && console.log("");
+    !true && console.log('');
 
     // Roll
     if (keyState[Camera.keyMap.rollCCW]) {
@@ -380,17 +380,17 @@ function main() {
 
   function initRendering() {
     // Generate canvas DOM element
-    canvas = document.createElement("canvas");
+    canvas = document.createElement('canvas');
     document.body.appendChild(canvas);
 
     canvas.width = 1000;
     canvas.height = 600;
 
     // Extract GL context
-    gl = canvas.getContext("webgl");
+    gl = canvas.getContext('webgl');
 
     if (!gl) {
-      throw new Error("Could not initialize WebGL.");
+      throw new Error('Could not initialize WebGL.');
     }
 
     // Compile shaders
@@ -409,11 +409,11 @@ function main() {
   function initInputHandling() {
     keyState = {};
 
-    document.addEventListener("focusout", () => {
+    document.addEventListener('focusout', () => {
       keyState = {};
     });
 
-    document.addEventListener("keydown", (event) => {
+    document.addEventListener('keydown', (event) => {
       if (keyState[event.which]) {
         return;
       }
@@ -421,7 +421,7 @@ function main() {
       keyState[event.which] = true;
     });
 
-    document.addEventListener("keyup", (event) => {
+    document.addEventListener('keyup', (event) => {
       delete keyState[event.which];
     });
   }
@@ -465,13 +465,13 @@ function main() {
     );
     const matMVP = mat4.multiply(mat4.create(), matProj, matView);
     gl.uniformMatrix4fv(
-      gl.getUniformLocation(shaderProgram, "matMVP"),
+      gl.getUniformLocation(shaderProgram, 'matMVP'),
       false,
       matMVP,
     );
 
     // Per-model rendering
-    const drawList = ["cube"];
+    const drawList = ['cube'];
 
     // Depth pass
     gl.depthFunc(gl.LESS);
@@ -485,7 +485,7 @@ function main() {
         const bufferData = buffers[b];
         gl.bindBuffer(gl.ARRAY_BUFFER, bufferData.glBuffer);
 
-        const posAttrib = gl.getAttribLocation(shaderProgram, "v3Pos");
+        const posAttrib = gl.getAttribLocation(shaderProgram, 'v3Pos');
         gl.vertexAttribPointer(posAttrib, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(posAttrib);
 
@@ -505,7 +505,7 @@ function main() {
         const bufferData = buffers[b];
         gl.bindBuffer(gl.ARRAY_BUFFER, bufferData.glBuffer);
 
-        const posAttrib = gl.getAttribLocation(shaderProgram, "v3Pos");
+        const posAttrib = gl.getAttribLocation(shaderProgram, 'v3Pos');
         gl.vertexAttribPointer(posAttrib, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(posAttrib);
 
