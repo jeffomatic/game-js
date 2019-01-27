@@ -10,23 +10,49 @@ const models = {
   cube: cubeJson5,
 };
 
-let canvas: HTMLCanvasElement;
-let gl: WebGLRenderingContext;
-let camera: Camera;
-let input: Input;
-let renderer: Renderer;
-let modelBuffers: {
-  [key: string]: ModelBuffer[];
-};
+class Game {
+  camera: Camera;
+  renderer: Renderer;
+  modelBuffers: {
+    [key: string]: ModelBuffer[];
+  };
+}
+
+declare global {
+  interface Window {
+    game: Game;
+  }
+}
+
+const game = new Game();
+window.game = game;
 
 function main() {
-  function initModels() {
-    modelBuffers = {};
+  function initModels() {}
+
+  function initRendering() {
+    // Generate canvas DOM element
+    const canvas = document.createElement('canvas');
+    document.body.appendChild(canvas);
+
+    canvas.width = 1000;
+    canvas.height = 600;
+
+    // Extract GL context
+    const gl = canvas.getContext('webgl');
+    if (!gl) {
+      throw new Error('Could not initialize WebGL.');
+    }
+
+    game.renderer = new Renderer(gl, canvas.width, canvas.height);
+    game.renderer.init();
+
+    game.modelBuffers = {};
 
     // Pre-process models into GL attrib array
     for (const k in models) {
       const faces = models[k];
-      modelBuffers[k] = [];
+      game.modelBuffers[k] = [];
 
       for (const f in faces) {
         const faceVerts = new Float32Array(faces[f]);
@@ -35,30 +61,12 @@ function main() {
         gl.bindBuffer(gl.ARRAY_BUFFER, buf);
         gl.bufferData(gl.ARRAY_BUFFER, faceVerts, gl.STATIC_DRAW);
 
-        modelBuffers[k].push({
+        game.modelBuffers[k].push({
           vertCount: faceVerts.length / 3,
           glBuffer: buf,
         });
       }
     }
-  }
-
-  function initRendering() {
-    // Generate canvas DOM element
-    canvas = document.createElement('canvas');
-    document.body.appendChild(canvas);
-
-    canvas.width = 1000;
-    canvas.height = 600;
-
-    // Extract GL context
-    gl = canvas.getContext('webgl');
-    if (!gl) {
-      throw new Error('Could not initialize WebGL.');
-    }
-
-    renderer = new Renderer(gl, canvas.width, canvas.height);
-    renderer.init();
   }
 
   let lastTimeSample = Date.now();
@@ -73,21 +81,20 @@ function main() {
       delta = 0;
     }
 
-    camera.simulate(delta);
-    renderer.update(camera.transform.mat, modelBuffers.cube);
+    game.camera.simulate(delta);
+    game.renderer.update(game.camera.transform.mat, game.modelBuffers.cube);
 
     firstLoop = false;
     lastTimeSample = currentTime;
   }
 
   initRendering();
-  initModels();
 
-  input = new Input();
+  const input = new Input();
   input.init();
 
-  camera = new Camera(input);
-  camera.transform.setTranslate(vec4.fromValues(0, 0, 4, 0));
+  game.camera = new Camera(input);
+  game.camera.transform.setTranslate(vec4.fromValues(0, 0, 4, 0));
 
   gameLoop();
 }

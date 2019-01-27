@@ -52,6 +52,10 @@ export class Renderer {
   canvasWidth: number;
   canvasHeight: number;
 
+  fov: number;
+  near: number;
+  far: number;
+
   constructor(
     gl: WebGLRenderingContext,
     canvasWidth: number,
@@ -60,6 +64,10 @@ export class Renderer {
     this.gl = gl;
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
+
+    this.fov = Math.PI / 2;
+    this.near = 0.25;
+    this.far = 300;
   }
 
   init(): void {
@@ -89,10 +97,10 @@ export class Renderer {
     const matView = mat4.invert(mat4.create(), view);
     const matProj = mat4.perspective(
       mat4.create(),
-      Math.PI / 2,
+      this.fov,
       this.canvasWidth / this.canvasHeight,
-      0.25,
-      300.0,
+      this.near,
+      this.far,
     );
     const matMVP = mat4.multiply(mat4.create(), matProj, matView);
     this.gl.uniformMatrix4fv(
