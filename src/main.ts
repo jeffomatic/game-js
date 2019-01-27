@@ -5,6 +5,9 @@ import fragmentGlsl from './shaders/fragment.glsl';
 // @ts-ignore: parcel shader import
 import vertexGlsl from './shaders/vertex.glsl';
 
+// @ts-ignore: parcel json import
+import cubeJson5 from './models/cube.json5';
+
 function compileShader(
   gl: WebGLRenderingContext,
   type: number,
@@ -241,98 +244,7 @@ class Camera {
 // and TRIANGLE_FAN with CCW backface culling (for depth buffering of opaque
 // surfaces).
 const models = {
-  cube: [
-    [
-      // X/Y plane, +Z
-      +0.5,
-      +0.5,
-      +0.5,
-      -0.5,
-      +0.5,
-      +0.5,
-      -0.5,
-      -0.5,
-      +0.5,
-      +0.5,
-      -0.5,
-      +0.5,
-    ],
-    [
-      // X/Z plane, -Y
-      +0.5,
-      -0.5,
-      +0.5,
-      -0.5,
-      -0.5,
-      +0.5,
-      -0.5,
-      -0.5,
-      -0.5,
-      +0.5,
-      -0.5,
-      -0.5,
-    ],
-    [
-      // X/Y plane, -Z
-      +0.5,
-      -0.5,
-      -0.5,
-      -0.5,
-      -0.5,
-      -0.5,
-      -0.5,
-      +0.5,
-      -0.5,
-      +0.5,
-      +0.5,
-      -0.5,
-    ],
-    [
-      // X/Z plane, +Y
-      +0.5,
-      +0.5,
-      -0.5,
-      -0.5,
-      +0.5,
-      -0.5,
-      -0.5,
-      +0.5,
-      +0.5,
-      +0.5,
-      +0.5,
-      +0.5,
-    ],
-    [
-      // Y/Z plane, -X
-      -0.5,
-      -0.5,
-      -0.5,
-      -0.5,
-      -0.5,
-      +0.5,
-      -0.5,
-      +0.5,
-      +0.5,
-      -0.5,
-      +0.5,
-      -0.5,
-    ],
-    [
-      // Y/Z plane, +X
-      +0.5,
-      +0.5,
-      +0.5,
-      +0.5,
-      -0.5,
-      +0.5,
-      +0.5,
-      -0.5,
-      -0.5,
-      +0.5,
-      +0.5,
-      -0.5,
-    ],
-  ],
+  cube: cubeJson5,
 };
 
 interface ModelBuffer {
