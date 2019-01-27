@@ -4,7 +4,7 @@ export class Transform {
   translate: vec4;
   scale: vec4;
   rot: quat;
-  transform: mat4;
+  mat: mat4;
   dirty: boolean;
 
   constructor() {
@@ -13,7 +13,7 @@ export class Transform {
     vec4.set(this.scale, 1, 1, 1, 1);
     this.rot = quat.create();
     quat.identity(this.rot);
-    this.transform = mat4.create();
+    this.mat = mat4.create();
     this.dirty = true;
     this.update();
   }
@@ -36,7 +36,7 @@ export class Transform {
     const rs = mat3.multiply(mat3.create(), r, s);
 
     // 4x4 scale-then-rotate-then-translate matrix
-    const t = this.transform;
+    const t = this.mat;
     const tr = this.translate;
 
     t[0 * 4 + 0] = rs[0 * 3 + 0];
