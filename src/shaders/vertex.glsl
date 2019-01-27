@@ -1,6 +1,7 @@
-attribute vec3 v3Pos;
-uniform mat4 matMVP;
+attribute vec3 pos;
+uniform mat4 worldModel;
+uniform mat4 projView;
 
 void main(void) {
-  gl_Position = matMVP * vec4(v3Pos, 1.0);
+  gl_Position = projView * worldModel * vec4(pos, 1.0);
 }

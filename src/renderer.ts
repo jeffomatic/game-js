@@ -40,9 +40,14 @@ function linkProgram(
   return program;
 }
 
-export interface ModelBuffer {
+export interface BufferedFace {
   vertCount: number;
   glBuffer: WebGLBuffer;
+}
+
+export interface Renderable {
+  worldModel: mat4;
+  faces: BufferedFace[];
 }
 
 export class Renderer {
@@ -88,7 +93,7 @@ export class Renderer {
     this.gl.enable(this.gl.DEPTH_TEST);
   }
 
-  update(view: mat4, drawList: ModelBuffer[]): void {
+  render(view: mat4, renderables: Renderable[]): void {
     // Clear previous frame
     this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
@@ -102,39 +107,55 @@ export class Renderer {
       this.near,
       this.far,
     );
-    const matMVP = mat4.multiply(mat4.create(), matProj, matView);
+    const projView = mat4.multiply(mat4.create(), matProj, matView);
     this.gl.uniformMatrix4fv(
-      this.gl.getUniformLocation(this.program, 'matMVP'),
+      this.gl.getUniformLocation(this.program, 'projView'),
       false,
-      matMVP,
+      projView,
     );
 
     // Depth pass
     this.gl.depthFunc(this.gl.LESS);
     this.gl.colorMask(false, false, false, false);
 
-    for (const b of drawList) {
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, b.glBuffer);
+    for (const { worldModel, faces } of renderables) {
+      this.gl.uniformMatrix4fv(
+        this.gl.getUniformLocation(this.program, 'worldModel'),
+        false,
+        worldModel,
+      );
 
-      const posAttrib = this.gl.getAttribLocation(this.program, 'v3Pos');
-      this.gl.vertexAttribPointer(posAttrib, 3, this.gl.FLOAT, false, 0, 0);
-      this.gl.enableVertexAttribArray(posAttrib);
+      for (const { vertCount, glBuffer } of faces) {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, glBuffer);
 
-      this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, b.vertCount);
+        const posAttrib = this.gl.getAttribLocation(this.program, 'pos');
+        this.gl.vertexAttribPointer(posAttrib, 3, this.gl.FLOAT, false, 0, 0);
+        this.gl.enableVertexAttribArray(posAttrib);
+
+        this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, vertCount);
+      }
     }
 
     // Color pass
     this.gl.depthFunc(this.gl.LEQUAL);
     this.gl.colorMask(true, true, true, true);
 
-    for (const b of drawList) {
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, b.glBuffer);
+    for (const { worldModel, faces } of renderables) {
+      this.gl.uniformMatrix4fv(
+        this.gl.getUniformLocation(this.program, 'worldModel'),
+        false,
+        worldModel,
+      );
 
-      const posAttrib = this.gl.getAttribLocation(this.program, 'v3Pos');
-      this.gl.vertexAttribPointer(posAttrib, 3, this.gl.FLOAT, false, 0, 0);
-      this.gl.enableVertexAttribArray(posAttrib);
+      for (const { vertCount, glBuffer } of faces) {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, glBuffer);
 
-      this.gl.drawArrays(this.gl.LINE_LOOP, 0, b.vertCount);
+        const posAttrib = this.gl.getAttribLocation(this.program, 'pos');
+        this.gl.vertexAttribPointer(posAttrib, 3, this.gl.FLOAT, false, 0, 0);
+        this.gl.enableVertexAttribArray(posAttrib);
+
+        this.gl.drawArrays(this.gl.LINE_LOOP, 0, vertCount);
+      }
     }
   }
 }
