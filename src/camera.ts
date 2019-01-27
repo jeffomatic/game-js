@@ -1,29 +1,9 @@
 import { quat, vec4 } from 'gl-matrix';
+import { Input } from './input';
 import { Transform } from './transform';
 
-let keyState: { [key: number]: boolean };
-
-function initInputHandling() {
-  keyState = {};
-
-  document.addEventListener('focusout', () => {
-    keyState = {};
-  });
-
-  document.addEventListener('keydown', (event) => {
-    if (keyState[event.which]) {
-      return;
-    }
-
-    keyState[event.which] = true;
-  });
-
-  document.addEventListener('keyup', (event) => {
-    delete keyState[event.which];
-  });
-}
-
 export class Camera {
+  input: Input;
   transform: Transform;
   moveSpeed: number;
   rotSpeed: number;
@@ -43,9 +23,8 @@ export class Camera {
     rollCW: 190, // .
   };
 
-  constructor() {
-    initInputHandling(); // TODO: move this elsewhere
-
+  constructor(input: Input) {
+    this.input = input;
     this.transform = new Transform();
     this.moveSpeed = 1;
     this.rotSpeed = 1;
@@ -59,25 +38,25 @@ export class Camera {
     const frameRot = delta * this.rotSpeed;
 
     // Pitch
-    if (keyState[Camera.keyMap.pitchUp]) {
+    if (this.input.isKeyDown(Camera.keyMap.pitchUp)) {
       pitch = +frameRot;
-    } else if (keyState[Camera.keyMap.pitchDown]) {
+    } else if (this.input.isKeyDown(Camera.keyMap.pitchDown)) {
       pitch = -frameRot;
     }
 
     // Yaw
-    if (keyState[Camera.keyMap.yawLeft]) {
+    if (this.input.isKeyDown(Camera.keyMap.yawLeft)) {
       yaw = +frameRot;
-    } else if (keyState[Camera.keyMap.yawRight]) {
+    } else if (this.input.isKeyDown(Camera.keyMap.yawRight)) {
       yaw = -frameRot;
     }
 
     !true && console.log('');
 
     // Roll
-    if (keyState[Camera.keyMap.rollCCW]) {
+    if (this.input.isKeyDown(Camera.keyMap.rollCCW)) {
       roll = +frameRot;
-    } else if (keyState[Camera.keyMap.rollCW]) {
+    } else if (this.input.isKeyDown(Camera.keyMap.rollCW)) {
       roll = -frameRot;
     }
 
@@ -106,23 +85,23 @@ export class Camera {
     const dispDelta = vec4.create();
 
     // Forward
-    if (keyState[Camera.keyMap.back]) {
+    if (this.input.isKeyDown(Camera.keyMap.back)) {
       dispDelta[2] = +frameSpeed;
-    } else if (keyState[Camera.keyMap.forward]) {
+    } else if (this.input.isKeyDown(Camera.keyMap.forward)) {
       dispDelta[2] = -frameSpeed;
     }
 
     // Strafe
-    if (keyState[Camera.keyMap.right]) {
+    if (this.input.isKeyDown(Camera.keyMap.right)) {
       dispDelta[0] = +frameSpeed;
-    } else if (keyState[Camera.keyMap.left]) {
+    } else if (this.input.isKeyDown(Camera.keyMap.left)) {
       dispDelta[0] = -frameSpeed;
     }
 
     // Asc/desc
-    if (keyState[Camera.keyMap.up]) {
+    if (this.input.isKeyDown(Camera.keyMap.up)) {
       dispDelta[1] = +frameSpeed;
-    } else if (keyState[Camera.keyMap.down]) {
+    } else if (this.input.isKeyDown(Camera.keyMap.down)) {
       dispDelta[1] = -frameSpeed;
     }
 

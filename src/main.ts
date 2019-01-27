@@ -1,5 +1,6 @@
 import { mat4, vec4 } from 'gl-matrix';
 import { Camera } from './camera';
+import { Input } from './input';
 
 // @ts-ignore: parcel shader import
 import fragmentGlsl from './shaders/fragment.glsl';
@@ -61,6 +62,7 @@ interface ModelBuffer {
 let canvas: HTMLCanvasElement;
 let gl: WebGLRenderingContext;
 let camera: Camera;
+let input: Input;
 let modelBuffers: {
   [key: string]: ModelBuffer[];
 };
@@ -88,11 +90,6 @@ function main() {
         });
       }
     }
-  }
-
-  function initCamera() {
-    camera = new Camera();
-    camera.transform.setTranslate(vec4.fromValues(0, 0, 4, 0));
   }
 
   function initRendering() {
@@ -213,7 +210,12 @@ function main() {
 
   initRendering();
   initModels();
-  initCamera();
+
+  input = new Input();
+  input.init();
+
+  camera = new Camera(input);
+  camera.transform.setTranslate(vec4.fromValues(0, 0, 4, 0));
 
   gameLoop();
 }
