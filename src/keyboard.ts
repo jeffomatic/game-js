@@ -1,4 +1,4 @@
-export class Input {
+export class Keyboard {
   keyDown: Set<number>;
 
   constructor() {
@@ -17,7 +17,7 @@ export class Input {
     });
   }
 
-  isKeyDown(key: number): boolean {
+  isDown(key: number): boolean {
     return this.keyDown.has(key);
   }
 }

@@ -1,6 +1,6 @@
 import { vec3, vec4 } from 'gl-matrix';
 import { Camera } from '../camera';
-import { Input } from '../input';
+import { Keyboard } from '../keyboard';
 import { Renderer } from '../renderer';
 import { IGame } from './interface';
 import { IWorldTransformSystem } from '../systems/world_transform/interface';
@@ -17,12 +17,12 @@ export class Game implements IGame {
 
   canvas: HTMLCanvasElement;
   camera: Camera;
-  input: Input;
+  keyboard: Keyboard;
   renderer: Renderer;
 
-  constructor(canvas: HTMLCanvasElement, input: Input) {
+  constructor(canvas: HTMLCanvasElement, keyboard: Keyboard) {
     this.canvas = canvas;
-    this.input = input;
+    this.keyboard = keyboard;
 
     canvas.width = 1000;
     canvas.height = 600;
@@ -35,7 +35,7 @@ export class Game implements IGame {
     this.renderer = new Renderer(gl, canvas.width, canvas.height);
     this.renderer.addModel('cube', cubeJson5);
 
-    this.camera = new Camera(input);
+    this.camera = new Camera(keyboard);
     this.camera.transform.setTranslate(vec4.fromValues(0, 0, 4, 0));
 
     this.worldTransforms = new WorldTransformSystem();
