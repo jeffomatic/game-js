@@ -47,7 +47,7 @@ export interface BufferedFace {
 
 export interface Renderable {
   worldModel: mat4;
-  faces: BufferedFace[];
+  modelId: string;
 }
 
 export class Renderer {
@@ -60,6 +60,8 @@ export class Renderer {
   fov: number;
   near: number;
   far: number;
+
+  bufferedModels: { [modelId: string]: BufferedFace[] };
 
   constructor(
     gl: WebGLRenderingContext,
@@ -89,6 +91,25 @@ export class Renderer {
     // Global rendering state
     this.gl.viewport(0, 0, this.canvasWidth, this.canvasHeight);
     this.gl.enable(this.gl.DEPTH_TEST);
+
+    this.bufferedModels = {};
+  }
+
+  addModel(modelId: string, faces: number[][]): void {
+    this.bufferedModels[modelId] = [];
+
+    for (const f in faces) {
+      const faceVerts = new Float32Array(faces[f]);
+      const buf = this.gl.createBuffer();
+
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buf);
+      this.gl.bufferData(this.gl.ARRAY_BUFFER, faceVerts, this.gl.STATIC_DRAW);
+
+      this.bufferedModels[modelId].push({
+        vertCount: faceVerts.length / 3,
+        glBuffer: buf,
+      });
+    }
   }
 
   render(view: mat4, renderables: Renderable[]): void {
@@ -116,14 +137,14 @@ export class Renderer {
     this.gl.depthFunc(this.gl.LESS);
     this.gl.colorMask(false, false, false, false);
 
-    for (const { worldModel, faces } of renderables) {
+    for (const { worldModel, modelId } of renderables) {
       this.gl.uniformMatrix4fv(
         this.gl.getUniformLocation(this.program, 'worldModel'),
         false,
         worldModel,
       );
 
-      for (const { vertCount, glBuffer } of faces) {
+      for (const { vertCount, glBuffer } of this.bufferedModels[modelId]) {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, glBuffer);
 
         const posAttrib = this.gl.getAttribLocation(this.program, 'pos');
@@ -138,14 +159,14 @@ export class Renderer {
     this.gl.depthFunc(this.gl.LEQUAL);
     this.gl.colorMask(true, true, true, true);
 
-    for (const { worldModel, faces } of renderables) {
+    for (const { worldModel, modelId } of renderables) {
       this.gl.uniformMatrix4fv(
         this.gl.getUniformLocation(this.program, 'worldModel'),
         false,
         worldModel,
       );
 
-      for (const { vertCount, glBuffer } of faces) {
+      for (const { vertCount, glBuffer } of this.bufferedModels[modelId]) {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, glBuffer);
 
         const posAttrib = this.gl.getAttribLocation(this.program, 'pos');

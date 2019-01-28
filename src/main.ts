@@ -1,4 +1,4 @@
-import { Game } from './game';
+import { Game } from './game/impl';
 import { Input } from './input';
 
 declare global {
