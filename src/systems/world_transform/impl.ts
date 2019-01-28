@@ -18,19 +18,31 @@ export class WorldTransform implements IWorldTransform {
     this.dirty = true;
   }
 
+  getTranslate(): vec3 {
+    return this.translate;
+  }
+
   setTranslate(v: vec3): void {
     this.dirty = true;
     vec3.copy(this.translate, v);
   }
 
-  setScale(v: vec3): void {
-    this.dirty = true;
-    vec3.copy(this.scale, v);
+  getRotation(): quat {
+    return this.rot;
   }
 
   setRotation(q: quat): void {
     this.dirty = true;
     quat.copy(this.rot, q);
+  }
+
+  getScale(): vec3 {
+    return this.scale;
+  }
+
+  setScale(v: vec3): void {
+    this.dirty = true;
+    vec3.copy(this.scale, v);
   }
 
   getMatrix(): mat4 {

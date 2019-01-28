@@ -1,24 +1,25 @@
-import { vec3, vec4 } from 'gl-matrix';
-import { Camera } from '../camera';
+import { vec3 } from 'gl-matrix';
 import { Keyboard } from '../keyboard';
 import { Renderer } from '../renderer';
 import { IGame } from './interface';
 import { IWorldTransformSystem } from '../systems/world_transform/interface';
 import { ICharacterSystem } from '../systems/character/interface';
+import { WorldTransformSystem } from '../systems/world_transform/impl';
+import { CharacterSystem } from '../systems/character/impl';
+import { IFirstPersonWasdSystem } from '../systems/first_person_wasd/interface';
+import { FirstPersonWasdSystem } from '../systems/first_person_wasd/impl';
 
 // @ts-ignore: parcel json import
 import cubeJson5 from '../models/cube.json5';
-import { WorldTransformSystem } from '../systems/world_transform/impl';
-import { CharacterSystem } from '../systems/character/impl';
 
 export class Game implements IGame {
-  worldTransforms: IWorldTransformSystem;
-  characters: ICharacterSystem;
-
   canvas: HTMLCanvasElement;
-  camera: Camera;
   keyboard: Keyboard;
   renderer: Renderer;
+
+  worldTransforms: IWorldTransformSystem;
+  characters: ICharacterSystem;
+  firstPersonWasd: IFirstPersonWasdSystem;
 
   constructor(canvas: HTMLCanvasElement, keyboard: Keyboard) {
     this.canvas = canvas;
@@ -35,11 +36,11 @@ export class Game implements IGame {
     this.renderer = new Renderer(gl, canvas.width, canvas.height);
     this.renderer.addModel('cube', cubeJson5);
 
-    this.camera = new Camera(keyboard);
-    this.camera.transform.setTranslate(vec4.fromValues(0, 0, 4, 0));
-
     this.worldTransforms = new WorldTransformSystem();
     this.characters = new CharacterSystem(this);
+    this.firstPersonWasd = new FirstPersonWasdSystem(this);
+
+    // Setup entities
 
     for (let i = 0; i < 3; i += 1) {
       const id = `cube${i}`;
@@ -49,12 +50,17 @@ export class Game implements IGame {
 
       this.characters.create(id, 'cube');
     }
+
+    const camTransform = this.worldTransforms.create('camera');
+    camTransform.setTranslate(vec3.fromValues(0, 0, 4));
+    this.firstPersonWasd.create('camera');
   }
 
   update(delta: number): void {
-    this.camera.simulate(delta);
+    this.firstPersonWasd.update(delta);
+
     this.renderer.render(
-      this.camera.transform.mat,
+      this.worldTransforms.get('camera').getMatrix(),
       this.characters.getRenderables(),
     );
   }

@@ -1,5 +1,5 @@
 import { Game } from './game/impl';
-import { Input } from './input';
+import { Keyboard } from './keyboard';
 
 declare global {
   interface Window {
@@ -11,7 +11,7 @@ declare global {
 const canvas = document.createElement('canvas');
 document.body.appendChild(canvas);
 
-const game = new Game(canvas, new Input());
+const game = new Game(canvas, new Keyboard());
 window.game = game; // expose game to devtools console
 
 let lastTimeSample = Date.now();
