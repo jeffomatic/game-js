@@ -3,9 +3,7 @@ export class Input {
 
   constructor() {
     this.keyDown = new Set();
-  }
 
-  init(): void {
     document.addEventListener('focusout', () => {
       this.keyDown.clear();
     });

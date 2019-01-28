@@ -11,10 +11,7 @@ declare global {
 const canvas = document.createElement('canvas');
 document.body.appendChild(canvas);
 
-const input = new Input();
-input.init();
-
-const game = new Game(canvas, input);
+const game = new Game(canvas, new Input());
 window.game = game; // expose game to devtools console
 
 let lastTimeSample = Date.now();

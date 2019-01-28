@@ -73,9 +73,7 @@ export class Renderer {
     this.fov = Math.PI / 2;
     this.near = 0.25;
     this.far = 300;
-  }
 
-  init(): void {
     // Compile shaders
     const vShader = compileShader(this.gl, this.gl.VERTEX_SHADER, vertexGlsl);
     const fShader = compileShader(

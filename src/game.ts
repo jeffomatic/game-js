@@ -40,11 +40,9 @@ export class Game {
     }
 
     this.renderer = new Renderer(gl, canvas.width, canvas.height);
-    this.renderer.init();
-
-    this.bufferedModels = {};
 
     // Pre-process models into GL attrib array
+    this.bufferedModels = {};
     for (const k in models) {
       const faces = models[k];
       this.bufferedModels[k] = [];
