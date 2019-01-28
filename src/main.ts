@@ -22,14 +22,14 @@ function gameLoop() {
 
   const currentTime = Date.now();
   let delta = (currentTime - lastTimeSample) / 1000; // use seconds
+  lastTimeSample = currentTime;
+
   if (firstLoop) {
     delta = 0;
+    firstLoop = false;
   }
 
   game.update(delta);
-
-  firstLoop = false;
-  lastTimeSample = currentTime;
 }
 
 gameLoop();
