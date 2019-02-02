@@ -1,4 +1,5 @@
-import { vec3 } from 'gl-matrix';
+import _ from 'lodash';
+import { vec3, quat } from 'gl-matrix';
 import { Keyboard } from '../keyboard';
 import { Renderer } from '../renderer';
 import { IGame } from './interface';
@@ -8,6 +9,7 @@ import { WorldTransformSystem } from '../systems/world_transform/impl';
 import { CharacterSystem } from '../systems/character/impl';
 import { IFirstPersonWasdSystem } from '../systems/first_person_wasd/interface';
 import { FirstPersonWasdSystem } from '../systems/first_person_wasd/impl';
+import { ScriptSystem } from '../systems/script/impl';
 
 // @ts-ignore: parcel json import
 import cubeJson5 from '../models/cube.json5';
@@ -20,6 +22,7 @@ export class Game implements IGame {
   worldTransforms: IWorldTransformSystem;
   characters: ICharacterSystem;
   firstPersonWasd: IFirstPersonWasdSystem;
+  scripts: ScriptSystem;
 
   constructor(canvas: HTMLCanvasElement, keyboard: Keyboard) {
     this.canvas = canvas;
@@ -39,17 +42,24 @@ export class Game implements IGame {
     this.worldTransforms = new WorldTransformSystem();
     this.characters = new CharacterSystem(this);
     this.firstPersonWasd = new FirstPersonWasdSystem(this);
+    this.scripts = new ScriptSystem(this);
 
     // Setup entities
-
-    for (let i = 0; i < 3; i += 1) {
+    _.range(3).forEach((i) => {
       const id = `cube${i}`;
 
       const wt = this.worldTransforms.create(id);
       wt.setTranslate(vec3.fromValues(i * 1.5, 0, 0));
 
       this.characters.create(id, 'cube');
-    }
+
+      this.scripts.create(id, (id: string, game: IGame, delta: number) => {
+        const transform = game.worldTransforms.get(id);
+        const rot = quat.create();
+        quat.rotateX(rot, transform.getRotation(), (Math.PI / 100) * (i + 1));
+        transform.setRotation(rot);
+      });
+    });
 
     const camTransform = this.worldTransforms.create('camera');
     camTransform.setTranslate(vec3.fromValues(0, 0, 4));
@@ -57,6 +67,7 @@ export class Game implements IGame {
   }
 
   update(delta: number): void {
+    this.scripts.update(delta);
     this.firstPersonWasd.update(delta);
 
     this.renderer.render(
