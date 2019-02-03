@@ -38,13 +38,21 @@ export class Game implements IGame {
       const id = `cube${i}`;
 
       const wt = this.worldTransforms.create(id);
-      wt.setTranslate(vec3.fromValues(i * 1.5, 0, 0));
-
       this.characters.create(id, 'cube');
 
       this.scripts.append(
         id,
-        scripts.create_x_rotation((Math.PI / 20) * (i + 1)),
+        scripts.create_x_rotation((Math.PI / 3) * (i + 1)),
+      );
+
+      this.scripts.append(
+        id,
+        scripts.create_revolve({
+          center: vec3.fromValues(i * 1.5, 0, 0),
+          start: vec3.fromValues(i * 1.5, 1, 0),
+          axis: vec3.fromValues(1, 0, 0),
+          period: (1 + i) / 2,
+        }),
       );
     });
 
