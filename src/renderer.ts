@@ -1,4 +1,4 @@
-import { mat4 } from 'gl-matrix';
+import { vec2, mat4 } from 'gl-matrix';
 
 // @ts-ignore: parcel shader import
 import fragmentGlsl from './shaders/fragment.glsl';
@@ -54,8 +54,8 @@ export class Renderer {
   gl: WebGLRenderingContext;
   program: WebGLProgram;
 
-  canvasWidth: number;
-  canvasHeight: number;
+  canvasSize: vec2;
+  nextCanvasSize?: vec2;
 
   fov: number;
   near: number;
@@ -63,14 +63,8 @@ export class Renderer {
 
   bufferedModels: { [modelId: string]: BufferedFace[] };
 
-  constructor(
-    gl: WebGLRenderingContext,
-    canvasWidth: number,
-    canvasHeight: number,
-  ) {
+  constructor(gl: WebGLRenderingContext) {
     this.gl = gl;
-    this.canvasWidth = canvasWidth;
-    this.canvasHeight = canvasHeight;
 
     this.fov = Math.PI / 2;
     this.near = 0.25;
@@ -89,10 +83,13 @@ export class Renderer {
     this.gl.useProgram(this.program);
 
     // Global rendering state
-    this.gl.viewport(0, 0, this.canvasWidth, this.canvasHeight);
     this.gl.enable(this.gl.DEPTH_TEST);
 
     this.bufferedModels = {};
+  }
+
+  resizeCanvas(size: vec2): void {
+    this.nextCanvasSize = size;
   }
 
   addModel(modelId: string, faces: number[][]): void {
@@ -113,6 +110,13 @@ export class Renderer {
   }
 
   render(view: mat4, renderables: Renderable[]): void {
+    // Resize viewport if necessary
+    if (this.nextCanvasSize) {
+      this.canvasSize = this.nextCanvasSize;
+      this.nextCanvasSize = null;
+      this.gl.viewport(0, 0, this.canvasSize[0], this.canvasSize[1]);
+    }
+
     // Clear previous frame
     this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
@@ -122,7 +126,7 @@ export class Renderer {
     const matProj = mat4.perspective(
       mat4.create(),
       this.fov,
-      this.canvasWidth / this.canvasHeight,
+      this.canvasSize[0] / this.canvasSize[1],
       this.near,
       this.far,
     );

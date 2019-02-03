@@ -23,19 +23,10 @@ export class Game implements IGame {
   characters: ICharacterSystem;
   scripts: ScriptSystem;
 
-  constructor(canvas: HTMLCanvasElement, keyboard: Keyboard) {
-    this.canvas = canvas;
+  constructor(gl: WebGLRenderingContext, keyboard: Keyboard) {
     this.keyboard = keyboard;
 
-    canvas.width = 1000;
-    canvas.height = 600;
-
-    const gl = canvas.getContext('webgl');
-    if (!gl) {
-      throw new Error('Could not initialize WebGL.');
-    }
-
-    this.renderer = new Renderer(gl, canvas.width, canvas.height);
+    this.renderer = new Renderer(gl);
     this.renderer.addModel('cube', models.cube);
 
     this.worldTransforms = new WorldTransformSystem();

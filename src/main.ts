@@ -1,21 +1,29 @@
+import { vec2 } from 'gl-matrix';
 import { Game } from './game';
 import { Keyboard } from './keyboard';
 
-declare global {
-  interface Window {
-    game: Game;
-  }
-}
-
-// Generate canvas DOM element
 const canvas = document.createElement('canvas');
 document.body.appendChild(canvas);
 
-const game = new Game(canvas, new Keyboard());
-window.game = game; // expose game to devtools console
+const gl = canvas.getContext('webgl');
+if (!gl) {
+  throw new Error('Could not initialize WebGL.');
+}
+
+const game = new Game(gl, new Keyboard());
 
 let lastTimeSample = Date.now();
 let firstLoop = true;
+
+function syncViewportSize() {
+  const size = vec2.fromValues(window.innerWidth, window.innerHeight);
+  canvas.width = size[0];
+  canvas.height = size[1];
+  game.renderer.resizeCanvas(size);
+}
+
+syncViewportSize();
+window.addEventListener('resize', syncViewportSize);
 
 function gameLoop() {
   requestAnimationFrame(gameLoop);
@@ -33,3 +41,12 @@ function gameLoop() {
 }
 
 gameLoop();
+
+// expose game to devtools console
+declare global {
+  interface Window {
+    game: Game;
+  }
+}
+
+window.game = game;
