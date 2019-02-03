@@ -7,9 +7,9 @@ import { IGame } from './interface';
 
 import { IWorldTransformSystem } from '../systems/world_transform/interface';
 import { ICharacterSystem } from '../systems/character/interface';
-import { WorldTransformSystem } from '../systems/world_transform/impl';
-import { CharacterSystem } from '../systems/character/impl';
-import { ScriptSystem } from '../systems/script/impl';
+import { WorldTransformSystem } from '../systems/world_transform';
+import { CharacterSystem } from '../systems/character';
+import { ScriptSystem } from '../systems/script';
 
 import { models } from '../models';
 import { scripts } from '../scripts';

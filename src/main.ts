@@ -1,4 +1,4 @@
-import { Game } from './game/impl';
+import { Game } from './game';
 import { Keyboard } from './keyboard';
 
 declare global {
