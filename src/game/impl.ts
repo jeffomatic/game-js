@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash'; // tslint:disable-line
 import { vec3, quat } from 'gl-matrix';
 import { Keyboard } from '../keyboard';
 import { Renderer } from '../renderer';
