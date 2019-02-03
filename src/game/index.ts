@@ -1,5 +1,5 @@
 import _ from 'lodash'; // tslint:disable-line
-import { vec3, quat } from 'gl-matrix';
+import { vec3 } from 'gl-matrix';
 
 import { Keyboard } from '../keyboard';
 import { Renderer } from '../renderer';
