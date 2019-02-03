@@ -42,14 +42,14 @@ export class Game implements IGame {
 
       this.scripts.append(
         id,
-        scripts.create_x_rotation((Math.PI / 3) * (i + 1)),
+        scripts.create_spin(vec3.fromValues(1, 0, 0), (1 + i) / 2),
       );
 
       this.scripts.append(
         id,
         scripts.create_revolve({
           center: vec3.fromValues(i * 1.5, 0, 0),
-          start: vec3.fromValues(i * 1.5, 1, 0),
+          start: vec3.fromValues(i * 1.5, 3, 0),
           axis: vec3.fromValues(1, 0, 0),
           period: (1 + i) / 2,
         }),
@@ -57,7 +57,7 @@ export class Game implements IGame {
     });
 
     const camTransform = this.worldTransforms.create('camera');
-    camTransform.setTranslate(vec3.fromValues(0, 0, 4));
+    camTransform.setTranslate(vec3.fromValues(0, 0, 7));
     this.scripts.append('camera', scripts.camera_control);
   }
 
