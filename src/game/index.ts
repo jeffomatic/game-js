@@ -50,10 +50,10 @@ export class Game implements IGame {
       this.scripts.append(
         id,
         scripts.create_revolve({
+          period,
           center: vec3.fromValues(i * 1.5, 0, 0),
           start: vec3.fromValues(i * 1.5, 3, 0),
           axis: vec3.fromValues(1, 0, 0),
-          period,
         }),
       );
     });
