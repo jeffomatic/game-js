@@ -34,15 +34,17 @@ export class Game implements IGame {
     this.scripts = new ScriptSystem(this);
 
     // Setup entities
-    _.range(3).forEach((i) => {
+    _.range(50).forEach((i) => {
       const id = `cube${i}`;
 
       const wt = this.worldTransforms.create(id);
       this.characters.create(id, 'cube');
 
+      const period = (0.1 * i + 1) * 2;
+
       this.scripts.append(
         id,
-        scripts.create_spin(vec3.fromValues(1, 0, 0), (1 + i) / 2),
+        scripts.create_spin(vec3.fromValues(1, 0, 0), period / 2),
       );
 
       this.scripts.append(
@@ -51,7 +53,7 @@ export class Game implements IGame {
           center: vec3.fromValues(i * 1.5, 0, 0),
           start: vec3.fromValues(i * 1.5, 3, 0),
           axis: vec3.fromValues(1, 0, 0),
-          period: (1 + i) / 2,
+          period,
         }),
       );
     });
