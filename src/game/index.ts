@@ -42,7 +42,7 @@ export class Game implements IGame {
 
       this.characters.create(id, 'cube');
 
-      this.scripts.create(
+      this.scripts.append(
         id,
         scripts.create_x_rotation((Math.PI / 20) * (i + 1)),
       );
@@ -50,7 +50,7 @@ export class Game implements IGame {
 
     const camTransform = this.worldTransforms.create('camera');
     camTransform.setTranslate(vec3.fromValues(0, 0, 4));
-    this.scripts.create('camera', scripts.camera_control);
+    this.scripts.append('camera', scripts.camera_control);
   }
 
   update(delta: number): void {
