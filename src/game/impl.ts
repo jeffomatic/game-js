@@ -1,16 +1,17 @@
 import _ from 'lodash'; // tslint:disable-line
 import { vec3, quat } from 'gl-matrix';
+
 import { Keyboard } from '../keyboard';
 import { Renderer } from '../renderer';
 import { IGame } from './interface';
+
 import { IWorldTransformSystem } from '../systems/world_transform/interface';
 import { ICharacterSystem } from '../systems/character/interface';
 import { WorldTransformSystem } from '../systems/world_transform/impl';
 import { CharacterSystem } from '../systems/character/impl';
 import { ScriptSystem } from '../systems/script/impl';
 
-// @ts-ignore: parcel json import
-import cubeJson5 from '../models/cube.json5';
+import { models } from '../models';
 import { scripts } from '../scripts';
 
 export class Game implements IGame {
@@ -35,7 +36,7 @@ export class Game implements IGame {
     }
 
     this.renderer = new Renderer(gl, canvas.width, canvas.height);
-    this.renderer.addModel('cube', cubeJson5);
+    this.renderer.addModel('cube', models.cube);
 
     this.worldTransforms = new WorldTransformSystem();
     this.characters = new CharacterSystem(this);
