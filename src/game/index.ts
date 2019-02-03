@@ -11,7 +11,7 @@ import { WorldTransformSystem } from '../systems/world_transform';
 import { CharacterSystem } from '../systems/character';
 import { ScriptSystem } from '../systems/script';
 
-import { models } from '../models';
+import { meshes } from '../meshes';
 import { scripts } from '../scripts';
 
 export class Game implements IGame {
@@ -27,7 +27,7 @@ export class Game implements IGame {
     this.keyboard = keyboard;
 
     this.renderer = new Renderer(gl);
-    this.renderer.addModel('cube', models.cube);
+    this.renderer.addMesh('cube', meshes.cube);
 
     this.worldTransforms = new WorldTransformSystem();
     this.characters = new CharacterSystem(this);

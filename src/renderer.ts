@@ -45,9 +45,11 @@ export interface BufferedFace {
   glBuffer: WebGLBuffer;
 }
 
+export type BufferedMesh = BufferedFace[];
+
 export interface Renderable {
   worldModel: mat4;
-  modelId: string;
+  meshId: string;
 }
 
 export class Renderer {
@@ -61,7 +63,7 @@ export class Renderer {
   near: number;
   far: number;
 
-  bufferedModels: { [modelId: string]: BufferedFace[] };
+  bufferedMeshes: { [id: string]: BufferedMesh };
 
   constructor(gl: WebGLRenderingContext) {
     this.gl = gl;
@@ -85,15 +87,15 @@ export class Renderer {
     // Global rendering state
     this.gl.enable(this.gl.DEPTH_TEST);
 
-    this.bufferedModels = {};
+    this.bufferedMeshes = {};
   }
 
   resizeCanvas(size: vec2): void {
     this.nextCanvasSize = size;
   }
 
-  addModel(modelId: string, faces: number[][]): void {
-    this.bufferedModels[modelId] = [];
+  addMesh(id: string, faces: number[][]): void {
+    this.bufferedMeshes[id] = [];
 
     for (const f in faces) {
       const faceVerts = new Float32Array(faces[f]);
@@ -102,7 +104,7 @@ export class Renderer {
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buf);
       this.gl.bufferData(this.gl.ARRAY_BUFFER, faceVerts, this.gl.STATIC_DRAW);
 
-      this.bufferedModels[modelId].push({
+      this.bufferedMeshes[id].push({
         vertCount: faceVerts.length / 3,
         glBuffer: buf,
       });
@@ -141,14 +143,14 @@ export class Renderer {
     this.gl.depthFunc(this.gl.LESS);
     this.gl.colorMask(false, false, false, false);
 
-    for (const { worldModel, modelId } of renderables) {
+    for (const { worldModel, meshId: meshId } of renderables) {
       this.gl.uniformMatrix4fv(
         this.gl.getUniformLocation(this.program, 'worldModel'),
         false,
         worldModel,
       );
 
-      for (const { vertCount, glBuffer } of this.bufferedModels[modelId]) {
+      for (const { vertCount, glBuffer } of this.bufferedMeshes[meshId]) {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, glBuffer);
 
         const posAttrib = this.gl.getAttribLocation(this.program, 'pos');
@@ -163,14 +165,14 @@ export class Renderer {
     this.gl.depthFunc(this.gl.LEQUAL);
     this.gl.colorMask(true, true, true, true);
 
-    for (const { worldModel, modelId } of renderables) {
+    for (const { worldModel, meshId: meshId } of renderables) {
       this.gl.uniformMatrix4fv(
         this.gl.getUniformLocation(this.program, 'worldModel'),
         false,
         worldModel,
       );
 
-      for (const { vertCount, glBuffer } of this.bufferedModels[modelId]) {
+      for (const { vertCount, glBuffer } of this.bufferedMeshes[meshId]) {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, glBuffer);
 
         const posAttrib = this.gl.getAttribLocation(this.program, 'pos');

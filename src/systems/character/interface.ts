@@ -1,11 +1,11 @@
 import { Renderable } from '../../renderer';
 
 export interface ICharacter {
-  getModelId(): string;
+  getMeshId(): string;
 }
 
 export interface ICharacterSystem {
-  create(id: string, modelId: string): ICharacter;
+  create(id: string, meshId: string): ICharacter;
   get(id: string): ICharacter;
   getRenderables(): Renderable[];
 }

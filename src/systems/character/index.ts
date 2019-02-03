@@ -1,34 +1,30 @@
 import { IGame } from '../../game/interface';
 import { ICharacter, ICharacterSystem } from './interface';
-import { Renderable, BufferedFace } from '../../renderer';
+import { Renderable } from '../../renderer';
 
 export class Character implements ICharacter {
-  private id: string;
-  private modelId: string;
+  private meshId: string;
 
-  constructor(id: string, modelId: string) {
-    this.id = id;
-    this.modelId = modelId;
+  constructor(meshId: string) {
+    this.meshId = meshId;
   }
 
-  getModelId(): string {
-    return this.modelId;
+  getMeshId(): string {
+    return this.meshId;
   }
 }
 
 export class CharacterSystem implements ICharacterSystem {
   private game: IGame;
   private characters: { [id: string]: ICharacter };
-  private bufferedModels: { [model: string]: BufferedFace[] };
 
   constructor(game: IGame) {
     this.game = game;
     this.characters = {};
-    this.bufferedModels = {};
   }
 
-  create(id: string, model: string): ICharacter {
-    const c = new Character(id, model);
+  create(id: string, meshId: string): ICharacter {
+    const c = new Character(meshId);
     this.characters[id] = c;
     return c;
   }
@@ -44,7 +40,7 @@ export class CharacterSystem implements ICharacterSystem {
 
       return {
         worldModel: t.getMatrix(),
-        modelId: c.getModelId(),
+        meshId: c.getMeshId(),
       };
     });
   }

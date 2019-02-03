@@ -1,8 +1,8 @@
-# Model format
+# Mesh format
 
-This format represents models that are rendered as wireframe outlines.
+This format represents meshes that are rendered as wireframe outlines.
 
-A **models** is an array of **faces**.
+A **mesh** is an array of **faces**.
 
 A **face** is an array of numbers. Every three values represents a single **vertex** in 3D space.
 
