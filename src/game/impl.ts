@@ -7,12 +7,11 @@ import { IWorldTransformSystem } from '../systems/world_transform/interface';
 import { ICharacterSystem } from '../systems/character/interface';
 import { WorldTransformSystem } from '../systems/world_transform/impl';
 import { CharacterSystem } from '../systems/character/impl';
-import { IFirstPersonWasdSystem } from '../systems/first_person_wasd/interface';
-import { FirstPersonWasdSystem } from '../systems/first_person_wasd/impl';
 import { ScriptSystem } from '../systems/script/impl';
 
 // @ts-ignore: parcel json import
 import cubeJson5 from '../models/cube.json5';
+import { scripts } from '../scripts';
 
 export class Game implements IGame {
   canvas: HTMLCanvasElement;
@@ -21,7 +20,6 @@ export class Game implements IGame {
 
   worldTransforms: IWorldTransformSystem;
   characters: ICharacterSystem;
-  firstPersonWasd: IFirstPersonWasdSystem;
   scripts: ScriptSystem;
 
   constructor(canvas: HTMLCanvasElement, keyboard: Keyboard) {
@@ -41,7 +39,6 @@ export class Game implements IGame {
 
     this.worldTransforms = new WorldTransformSystem();
     this.characters = new CharacterSystem(this);
-    this.firstPersonWasd = new FirstPersonWasdSystem(this);
     this.scripts = new ScriptSystem(this);
 
     // Setup entities
@@ -63,12 +60,11 @@ export class Game implements IGame {
 
     const camTransform = this.worldTransforms.create('camera');
     camTransform.setTranslate(vec3.fromValues(0, 0, 4));
-    this.firstPersonWasd.create('camera');
+    this.scripts.create('camera', scripts.camera_control);
   }
 
   update(delta: number): void {
     this.scripts.update(delta);
-    this.firstPersonWasd.update(delta);
 
     this.renderer.render(
       this.worldTransforms.get('camera').getMatrix(),
