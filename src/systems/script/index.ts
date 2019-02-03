@@ -1,6 +1,5 @@
+import { Script } from './interface';
 import { IGame } from '../../game/interface';
-
-export type Script = (id: string, game: IGame, delta: number) => void;
 
 export class ScriptSystem {
   private game: IGame;

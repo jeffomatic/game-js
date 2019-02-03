@@ -51,12 +51,10 @@ export class Game implements IGame {
 
       this.characters.create(id, 'cube');
 
-      this.scripts.create(id, (id: string, game: IGame, delta: number) => {
-        const transform = game.worldTransforms.get(id);
-        const rot = quat.create();
-        quat.rotateX(rot, transform.getRotation(), (Math.PI / 100) * (i + 1));
-        transform.setRotation(rot);
-      });
+      this.scripts.create(
+        id,
+        scripts.create_x_rotation((Math.PI / 20) * (i + 1)),
+      );
     });
 
     const camTransform = this.worldTransforms.create('camera');
