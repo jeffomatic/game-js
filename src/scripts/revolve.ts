@@ -34,9 +34,9 @@ export class Revolve implements IScript {
     this.angle = 0;
   }
 
-  update(id: string, game: IGame, delta: number): void {
+  update(entityId: string, game: IGame, delta: number): void {
     const rotVel = 1 / this.period;
-    const transform = game.components.transforms.get(id);
+    const transform = game.components.transforms.get(entityId);
 
     if (this.first) {
       this.first = false;

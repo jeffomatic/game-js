@@ -13,14 +13,14 @@ export class Spin implements IScript {
     this.angle = 0;
   }
 
-  update(id: string, game: IGame, delta: number): void {
+  update(entityId: string, game: IGame, delta: number): void {
     const rotVel = 1 / this.period;
     this.angle += delta * rotVel;
     if (this.angle > Math.PI * 2) {
       this.angle -= Math.PI * 2;
     }
 
-    const transform = game.components.transforms.get(id);
+    const transform = game.components.transforms.get(entityId);
     const rot = quat.create();
     quat.setAxisAngle(rot, this.axis, this.angle);
     transform.setRotation(rot);

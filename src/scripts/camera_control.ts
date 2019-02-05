@@ -21,8 +21,8 @@ const moveSpeed = 1;
 const rotSpeed = 1;
 
 export class CameraControl implements IScript {
-  update(id: string, game: IGame, delta: number): void {
-    const transform = game.components.transforms.get(id);
+  update(entityId: string, game: IGame, delta: number): void {
+    const transform = game.components.transforms.get(entityId);
 
     // I. Update rotation
     let pitch = 0;
