@@ -1,15 +1,13 @@
-import { mat3, mat4, quat, vec3 } from 'gl-matrix';
-import { IWorldTransform, IWorldTransformSystem } from './interface';
+import { vec3, mat3, mat4, quat } from 'gl-matrix';
 
-export class WorldTransform implements IWorldTransform {
-  private id: string;
+export class Transform {
   private translate: vec3;
   private scale: vec3;
   private rot: quat;
   private mat: mat4;
   private dirty: boolean;
 
-  constructor(id: string) {
+  constructor() {
     this.translate = vec3.create();
     this.scale = vec3.fromValues(1, 1, 1);
     this.rot = quat.create();
@@ -83,23 +81,5 @@ export class WorldTransform implements IWorldTransform {
     this.dirty = false;
 
     return this.mat;
-  }
-}
-
-export class WorldTransformSystem implements IWorldTransformSystem {
-  private transforms: { [id: string]: IWorldTransform };
-
-  constructor() {
-    this.transforms = {};
-  }
-
-  create(id: string): IWorldTransform {
-    const t = new WorldTransform(id);
-    this.transforms[id] = t;
-    return t;
-  }
-
-  get(id: string): IWorldTransform {
-    return this.transforms[id];
   }
 }

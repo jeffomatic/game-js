@@ -1,20 +1,28 @@
 import { quat, vec3 } from 'gl-matrix';
 import { IGame } from '../game/interface';
-import { Script } from '../systems/script/interface';
+import { IScript } from '../components/script';
 
-export function create(axis: vec3, period: number): Script {
-  const rotVel = 1 / period;
-  let angle = 0;
+export class Spin implements IScript {
+  private axis: vec3;
+  private period: number;
+  private angle: number;
 
-  return (id: string, game: IGame, delta: number) => {
-    angle += delta * rotVel;
-    if (angle > Math.PI * 2) {
-      angle -= Math.PI * 2;
+  constructor(axis: vec3, period: number) {
+    this.axis = axis;
+    this.period = period;
+    this.angle = 0;
+  }
+
+  update(id: string, game: IGame, delta: number): void {
+    const rotVel = 1 / this.period;
+    this.angle += delta * rotVel;
+    if (this.angle > Math.PI * 2) {
+      this.angle -= Math.PI * 2;
     }
 
-    const transform = game.worldTransforms.get(id);
+    const transform = game.components.transforms.get(id);
     const rot = quat.create();
-    quat.setAxisAngle(rot, axis, angle);
+    quat.setAxisAngle(rot, this.axis, this.angle);
     transform.setRotation(rot);
-  };
+  }
 }

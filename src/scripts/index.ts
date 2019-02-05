@@ -1,9 +1,4 @@
-import { update as camera_control } from './camera_control';
-import { create as create_spin } from './spin';
-import { create as create_revolve } from './revolve';
-
-export const scripts = {
-  camera_control,
-  create_spin,
-  create_revolve,
-};
+export { CameraControl } from './camera_control';
+export { Compose } from './compose';
+export { Spin } from './spin';
+export { Revolve } from './revolve';

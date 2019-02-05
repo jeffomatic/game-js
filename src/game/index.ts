@@ -5,23 +5,17 @@ import { Keyboard } from '../keyboard';
 import { Renderer } from '../renderer';
 import { IGame } from './interface';
 
-import { IWorldTransformSystem } from '../systems/world_transform/interface';
-import { ICharacterSystem } from '../systems/character/interface';
-import { WorldTransformSystem } from '../systems/world_transform';
-import { CharacterSystem } from '../systems/character';
-import { ScriptSystem } from '../systems/script';
-
 import { meshes } from '../meshes';
-import { scripts } from '../scripts';
+import { ComponentManager, Character, Transform } from '../components';
+import * as scripts from '../scripts';
+import { CharacterSystem, ScriptSystem } from '../systems';
 
 export class Game implements IGame {
   canvas: HTMLCanvasElement;
   keyboard: Keyboard;
   renderer: Renderer;
 
-  worldTransforms: IWorldTransformSystem;
-  characters: ICharacterSystem;
-  scripts: ScriptSystem;
+  components: ComponentManager;
 
   constructor(gl: WebGLRenderingContext, keyboard: Keyboard) {
     this.keyboard = keyboard;
@@ -29,46 +23,46 @@ export class Game implements IGame {
     this.renderer = new Renderer(gl);
     this.renderer.addMesh('cube', meshes.cube);
 
-    this.worldTransforms = new WorldTransformSystem();
-    this.characters = new CharacterSystem(this);
-    this.scripts = new ScriptSystem(this);
+    this.components = new ComponentManager();
 
     // Setup entities
     _.range(50).forEach((i) => {
       const id = `cube${i}`;
 
-      const wt = this.worldTransforms.create(id);
-      this.characters.create(id, 'cube');
+      const c = new Character('cube');
+      this.components.characters.add(id, c);
+
+      const t = new Transform();
+      this.components.transforms.add(id, t);
 
       const period = (0.1 * i + 1) * 2;
 
-      this.scripts.append(
-        id,
-        scripts.create_spin(vec3.fromValues(1, 0, 0), period / 2),
-      );
-
-      this.scripts.append(
-        id,
-        scripts.create_revolve({
+      const script = new scripts.Compose();
+      script.add(new scripts.Spin(vec3.fromValues(1, 0, 0), period / 2));
+      script.add(
+        new scripts.Revolve({
           period,
           center: vec3.fromValues(i * 1.5, 0, 0),
           start: vec3.fromValues(i * 1.5, 3, 0),
           axis: vec3.fromValues(1, 0, 0),
         }),
       );
+      this.components.scripts.add(id, script);
     });
 
-    const camTransform = this.worldTransforms.create('camera');
+    const camTransform = new Transform();
+    this.components.transforms.add('camera', camTransform);
     camTransform.setTranslate(vec3.fromValues(0, 0, 7));
-    this.scripts.append('camera', scripts.camera_control);
+
+    this.components.scripts.add('camera', new scripts.CameraControl());
   }
 
   update(delta: number): void {
-    this.scripts.update(delta);
+    ScriptSystem.update(this, delta);
 
     this.renderer.render(
-      this.worldTransforms.get('camera').getMatrix(),
-      this.characters.getRenderables(),
+      this.components.transforms.get('camera').getMatrix(),
+      CharacterSystem.getRenderables(this),
     );
   }
 }

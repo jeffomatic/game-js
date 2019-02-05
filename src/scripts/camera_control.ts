@@ -1,4 +1,5 @@
 import { quat, vec3 } from 'gl-matrix';
+import { IScript } from '../components/script';
 import { IGame } from '../game/interface';
 
 const keyMap = {
@@ -19,93 +20,95 @@ const keyMap = {
 const moveSpeed = 1;
 const rotSpeed = 1;
 
-export function update(id: string, game: IGame, delta: number): void {
-  const transform = game.worldTransforms.get(id);
+export class CameraControl implements IScript {
+  update(id: string, game: IGame, delta: number): void {
+    const transform = game.components.transforms.get(id);
 
-  // I. Update rotation
-  let pitch = 0;
-  let yaw = 0;
-  let roll = 0;
-  const frameRot = delta * rotSpeed;
+    // I. Update rotation
+    let pitch = 0;
+    let yaw = 0;
+    let roll = 0;
+    const frameRot = delta * rotSpeed;
 
-  // Pitch
-  if (game.keyboard.isDown(keyMap.pitchUp)) {
-    pitch = +frameRot;
-  } else if (game.keyboard.isDown(keyMap.pitchDown)) {
-    pitch = -frameRot;
-  }
-
-  // Yaw
-  if (game.keyboard.isDown(keyMap.yawLeft)) {
-    yaw = +frameRot;
-  } else if (game.keyboard.isDown(keyMap.yawRight)) {
-    yaw = -frameRot;
-  }
-
-  // Roll
-  if (game.keyboard.isDown(keyMap.rollCCW)) {
-    roll = +frameRot;
-  } else if (game.keyboard.isDown(keyMap.rollCW)) {
-    roll = -frameRot;
-  }
-
-  if (pitch !== 0 || yaw !== 0 || roll !== 0) {
-    const rotDelta = quat.create();
-
-    if (pitch !== 0) {
-      quat.rotateX(rotDelta, rotDelta, pitch);
+    // Pitch
+    if (game.keyboard.isDown(keyMap.pitchUp)) {
+      pitch = +frameRot;
+    } else if (game.keyboard.isDown(keyMap.pitchDown)) {
+      pitch = -frameRot;
     }
 
-    if (yaw !== 0) {
-      quat.rotateY(rotDelta, rotDelta, yaw);
+    // Yaw
+    if (game.keyboard.isDown(keyMap.yawLeft)) {
+      yaw = +frameRot;
+    } else if (game.keyboard.isDown(keyMap.yawRight)) {
+      yaw = -frameRot;
     }
 
-    if (roll !== 0) {
-      quat.rotateZ(rotDelta, rotDelta, roll);
+    // Roll
+    if (game.keyboard.isDown(keyMap.rollCCW)) {
+      roll = +frameRot;
+    } else if (game.keyboard.isDown(keyMap.rollCW)) {
+      roll = -frameRot;
     }
 
-    const q = quat.multiply(quat.create(), transform.getRotation(), rotDelta);
-    quat.normalize(q, q);
-    transform.setRotation(q);
-  }
+    if (pitch !== 0 || yaw !== 0 || roll !== 0) {
+      const rotDelta = quat.create();
 
-  // II. Update translation
-  const frameSpeed = delta * moveSpeed;
-  const dispDelta = vec3.create();
+      if (pitch !== 0) {
+        quat.rotateX(rotDelta, rotDelta, pitch);
+      }
 
-  // Forward
-  if (game.keyboard.isDown(keyMap.back)) {
-    dispDelta[2] = +frameSpeed;
-  } else if (game.keyboard.isDown(keyMap.forward)) {
-    dispDelta[2] = -frameSpeed;
-  }
+      if (yaw !== 0) {
+        quat.rotateY(rotDelta, rotDelta, yaw);
+      }
 
-  // Strafe
-  if (game.keyboard.isDown(keyMap.right)) {
-    dispDelta[0] = +frameSpeed;
-  } else if (game.keyboard.isDown(keyMap.left)) {
-    dispDelta[0] = -frameSpeed;
-  }
+      if (roll !== 0) {
+        quat.rotateZ(rotDelta, rotDelta, roll);
+      }
 
-  // Asc/desc
-  if (game.keyboard.isDown(keyMap.up)) {
-    dispDelta[1] = +frameSpeed;
-  } else if (game.keyboard.isDown(keyMap.down)) {
-    dispDelta[1] = -frameSpeed;
-  }
+      const q = quat.multiply(quat.create(), transform.getRotation(), rotDelta);
+      quat.normalize(q, q);
+      transform.setRotation(q);
+    }
 
-  if (dispDelta[0] !== 0 || dispDelta[1] !== 0 || dispDelta[2] !== 0) {
-    // Rotate the displacement by the current orientation
-    const orientedDisp = vec3.transformQuat(
-      vec3.create(),
-      dispDelta,
-      transform.getRotation(),
-    );
-    const newTrans = vec3.add(
-      vec3.create(),
-      transform.getTranslate(),
-      orientedDisp,
-    );
-    transform.setTranslate(newTrans);
+    // II. Update translation
+    const frameSpeed = delta * moveSpeed;
+    const dispDelta = vec3.create();
+
+    // Forward
+    if (game.keyboard.isDown(keyMap.back)) {
+      dispDelta[2] = +frameSpeed;
+    } else if (game.keyboard.isDown(keyMap.forward)) {
+      dispDelta[2] = -frameSpeed;
+    }
+
+    // Strafe
+    if (game.keyboard.isDown(keyMap.right)) {
+      dispDelta[0] = +frameSpeed;
+    } else if (game.keyboard.isDown(keyMap.left)) {
+      dispDelta[0] = -frameSpeed;
+    }
+
+    // Asc/desc
+    if (game.keyboard.isDown(keyMap.up)) {
+      dispDelta[1] = +frameSpeed;
+    } else if (game.keyboard.isDown(keyMap.down)) {
+      dispDelta[1] = -frameSpeed;
+    }
+
+    if (dispDelta[0] !== 0 || dispDelta[1] !== 0 || dispDelta[2] !== 0) {
+      // Rotate the displacement by the current orientation
+      const orientedDisp = vec3.transformQuat(
+        vec3.create(),
+        dispDelta,
+        transform.getRotation(),
+      );
+      const newTrans = vec3.add(
+        vec3.create(),
+        transform.getTranslate(),
+        orientedDisp,
+      );
+      transform.setTranslate(newTrans);
+    }
   }
 }

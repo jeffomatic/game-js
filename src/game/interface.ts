@@ -1,9 +1,7 @@
 import { Keyboard } from '../keyboard';
-import { IWorldTransformSystem } from '../systems/world_transform/interface';
-import { ICharacterSystem } from '../systems/character/interface';
+import { ComponentManager } from '../components';
 
 export interface IGame {
   keyboard: Keyboard;
-  worldTransforms: IWorldTransformSystem;
-  characters: ICharacterSystem;
+  components: ComponentManager;
 }
