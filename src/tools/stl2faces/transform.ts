@@ -13,15 +13,8 @@ export function center(faces: number[][]): number[][] {
 
   const offset = [0, 0, 0];
   for (let d = 0; d < 3; d += 1) {
-    const halfWidth = Math.abs(max[d] - min[d]) / 2;
-    offset[d] = -(min[d] + halfWidth);
-    // if (max[d] <= 0) {
-    //   offset[d] = -(max[d] - halfWidth);
-    // } else if (0 <= min[d]) {
-    //   offset[d] = -(min[d] + halfWidth);
-    // } else {
-    //   offset[d] = -(max[d] - halfWidth);
-    // }
+    // align max value to origin, then shift by half of the span
+    offset[d] = -max[d] + Math.abs(max[d] - min[d]) / 2;
   }
 
   const res = [];
