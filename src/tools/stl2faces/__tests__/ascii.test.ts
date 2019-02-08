@@ -1,6 +1,16 @@
-import { parse } from '../parse';
+import { isAscii, parseAscii } from '../ascii';
 
-test('sample', () => {
+test('isAcii', () => {
+  expect(isAscii(new Buffer('solid'))).toBe(true);
+  expect(isAscii(new Buffer(' \n\r\tsolid'))).toBe(true);
+  expect(isAscii(new Buffer(' solid xyz'))).toBe(true);
+
+  expect(isAscii(new Buffer('xsolid'))).toBe(false);
+  expect(isAscii(new Buffer(' \n\r\txsolid'))).toBe(false);
+  expect(isAscii(new Buffer(' xsolid xyz'))).toBe(false);
+});
+
+test('parseAscii', () => {
   const sample = `
     solid cube_corner
       facet normal 0.0 -1.0 0.0
@@ -34,7 +44,7 @@ test('sample', () => {
     endsolid
   `;
 
-  expect(parse(sample)).toEqual([
+  expect(parseAscii(new Buffer(sample))).toEqual([
     [0, 0, 0, 1, 0, 0, 0, 0, 1],
     [0, 0, 0, 0, 1, 0, 1, 0, 0],
     [0, 0, 0, 0, 0, 1, 0, 1, 0],
