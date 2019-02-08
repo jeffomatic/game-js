@@ -21,15 +21,15 @@ export class Game implements IGame {
     this.keyboard = keyboard;
 
     this.renderer = new Renderer(gl);
-    this.renderer.addMesh('cube', meshes.cube);
+    this.renderer.addMesh('entity', meshes.dodecahedron);
 
     this.components = new ComponentManager();
 
     // Setup entities
-    _.range(50).forEach((i) => {
-      const id = `cube${i}`;
+    _.range(50).forEach(i => {
+      const id = `entity${i}`;
 
-      const c = new Character('cube');
+      const c = new Character('entity');
       this.components.characters.add(id, c);
 
       const t = new Transform();
