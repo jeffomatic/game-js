@@ -35,15 +35,25 @@
     "ts-node": "^8.0.2",
     "tslint": "^5.12.1",
     "tslint-config-airbnb": "^5.11.1",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.2.4"
   },
   "jest": {
-    "roots": ["<rootDir>/src"],
+    "roots": [
+      "<rootDir>/src"
+    ],
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$",
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
     "collectCoverage": false
   },
   "prettier": {
