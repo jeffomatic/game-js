@@ -15,7 +15,7 @@ if (path === '-') {
 }
 
 const stl = fs.readFileSync(path);
-const faces = isAscii(stl) ? parseAscii(stl) : parseBinary(stl);
+const triangles = isAscii(stl) ? parseAscii(stl) : parseBinary(stl);
 console.log(
-  JSON.stringify(transform.scale(transform.center(faces), 0.2, 0.2, 0.2)),
+  JSON.stringify(transform.scale(transform.center(triangles), 0.2, 0.2, 0.2)),
 );

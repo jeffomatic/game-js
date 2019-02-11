@@ -40,12 +40,12 @@ export function isAscii(buf: Buffer): boolean {
 export function parseAscii(buf: Buffer): number[][] {
   let state = State.Start;
   let facet: number[] = [];
-  const facets: number[][] = [];
+  const triangles: number[][] = [];
 
   buf
     .toString()
     .split(/\r?\n/)
-    .forEach((raw) => {
+    .forEach(raw => {
       const line = raw.trim();
       if (line.length === 0) {
         return;
@@ -114,7 +114,7 @@ export function parseAscii(buf: Buffer): number[][] {
         case State.FullFacet:
           if (line === 'endfacet') {
             state = State.Solid;
-            facets.push(facet);
+            triangles.push(facet);
             facet = [];
             break;
           }
@@ -126,5 +126,5 @@ export function parseAscii(buf: Buffer): number[][] {
       }
     });
 
-  return facets;
+  return triangles;
 }

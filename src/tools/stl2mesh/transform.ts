@@ -1,12 +1,12 @@
-export function center(faces: number[][]): number[][] {
+export function center(triangles: number[][]): number[][] {
   const min = [Infinity, Infinity, Infinity];
   const max = [-Infinity, -Infinity, -Infinity];
 
-  for (const face of faces) {
-    for (let v = 0; v < face.length / 3; v += 1) {
+  for (const tri of triangles) {
+    for (let v = 0; v < tri.length / 3; v += 1) {
       for (let d = 0; d < 3; d += 1) {
-        min[d] = Math.min(min[d], face[3 * v + d]);
-        max[d] = Math.max(max[d], face[3 * v + d]);
+        min[d] = Math.min(min[d], tri[3 * v + d]);
+        max[d] = Math.max(max[d], tri[3 * v + d]);
       }
     }
   }
@@ -18,13 +18,13 @@ export function center(faces: number[][]): number[][] {
   }
 
   const res = [];
-  for (const f in faces) {
-    const face = faces[f];
-    res[f] = [];
+  for (const t in triangles) {
+    const face = triangles[t];
+    res[t] = [];
     for (let v = 0; v < face.length / 3; v += 1) {
       for (let d = 0; d < 3; d += 1) {
         const i = 3 * v + d;
-        res[f][i] = face[i] + offset[d];
+        res[t][i] = face[i] + offset[d];
       }
     }
   }
@@ -33,15 +33,15 @@ export function center(faces: number[][]): number[][] {
 }
 
 export function scale(
-  faces: number[][],
+  triangles: number[][],
   x: number,
   y: number,
   z: number,
 ): number[][] {
   const k = [x, y, z];
   const res = [];
-  for (const f in faces) {
-    const face = faces[f];
+  for (const f in triangles) {
+    const face = triangles[f];
     res[f] = [];
     for (let v = 0; v < face.length / 3; v += 1) {
       for (let d = 0; d < 3; d += 1) {
