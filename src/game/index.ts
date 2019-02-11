@@ -21,7 +21,7 @@ export class Game implements IGame {
     this.keyboard = keyboard;
 
     this.renderer = new Renderer(gl);
-    this.renderer.addMesh('entity', meshes.dodecahedron);
+    this.renderer.addMesh('entity', meshes.cube);
 
     this.components = new ComponentManager();
 

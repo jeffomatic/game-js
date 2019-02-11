@@ -40,16 +40,23 @@ function linkProgram(
   return program;
 }
 
-export interface BufferedFace {
-  vertCount: number;
-  glBuffer: WebGLBuffer;
-}
-
-export type BufferedMesh = BufferedFace[];
-
 export interface Renderable {
   worldModel: mat4;
   meshId: string;
+}
+
+export interface RawMesh {
+  vertices: number[];
+  triangleIndices: number[];
+  lineIndices: number[];
+}
+
+interface BufferedMesh {
+  vertices: WebGLBuffer;
+  triangleIndices: WebGLBuffer;
+  numTriangleIndices: number;
+  lineIndices: WebGLBuffer;
+  numLineIndices: number;
 }
 
 export class Renderer {
@@ -94,21 +101,38 @@ export class Renderer {
     this.nextCanvasSize = size;
   }
 
-  addMesh(id: string, faces: number[][]): void {
-    this.bufferedMeshes[id] = [];
+  addMesh(id: string, raw: RawMesh): void {
+    const vertices = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertices);
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      new Float32Array(raw.vertices),
+      this.gl.STATIC_DRAW,
+    );
 
-    for (const f in faces) {
-      const faceVerts = new Float32Array(faces[f]);
-      const buf = this.gl.createBuffer();
+    const triangleIndices = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, triangleIndices);
+    this.gl.bufferData(
+      this.gl.ELEMENT_ARRAY_BUFFER,
+      new Uint16Array(raw.triangleIndices),
+      this.gl.STATIC_DRAW,
+    );
 
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buf);
-      this.gl.bufferData(this.gl.ARRAY_BUFFER, faceVerts, this.gl.STATIC_DRAW);
+    const lineIndices = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, lineIndices);
+    this.gl.bufferData(
+      this.gl.ELEMENT_ARRAY_BUFFER,
+      new Uint16Array(raw.lineIndices),
+      this.gl.STATIC_DRAW,
+    );
 
-      this.bufferedMeshes[id].push({
-        vertCount: faceVerts.length / 3,
-        glBuffer: buf,
-      });
-    }
+    this.bufferedMeshes[id] = {
+      vertices,
+      triangleIndices,
+      lineIndices,
+      numTriangleIndices: raw.triangleIndices.length,
+      numLineIndices: raw.lineIndices.length,
+    };
   }
 
   render(view: mat4, renderables: Renderable[]): void {
@@ -139,48 +163,67 @@ export class Renderer {
       projView,
     );
 
+    // Common shader params
+    const posAttrib = this.gl.getAttribLocation(this.program, 'pos');
+
     // Depth pass
     this.gl.depthFunc(this.gl.LESS);
     this.gl.colorMask(false, false, false, false);
 
-    for (const { worldModel, meshId: meshId } of renderables) {
+    for (const { worldModel, meshId } of renderables) {
+      // Setup shader
       this.gl.uniformMatrix4fv(
         this.gl.getUniformLocation(this.program, 'worldModel'),
         false,
         worldModel,
       );
 
-      for (const { vertCount, glBuffer } of this.bufferedMeshes[meshId]) {
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, glBuffer);
+      this.gl.vertexAttribPointer(posAttrib, 3, this.gl.FLOAT, false, 0, 0);
+      this.gl.enableVertexAttribArray(posAttrib);
 
-        const posAttrib = this.gl.getAttribLocation(this.program, 'pos');
-        this.gl.vertexAttribPointer(posAttrib, 3, this.gl.FLOAT, false, 0, 0);
-        this.gl.enableVertexAttribArray(posAttrib);
-
-        this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, vertCount);
-      }
+      // Draw geometry
+      const {
+        vertices,
+        triangleIndices,
+        numTriangleIndices,
+      } = this.bufferedMeshes[meshId];
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertices);
+      this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, triangleIndices);
+      this.gl.drawElements(
+        this.gl.TRIANGLES,
+        numTriangleIndices,
+        this.gl.UNSIGNED_SHORT,
+        0,
+      );
     }
 
     // Color pass
     this.gl.depthFunc(this.gl.LEQUAL);
     this.gl.colorMask(true, true, true, true);
 
-    for (const { worldModel, meshId: meshId } of renderables) {
+    for (const { worldModel, meshId } of renderables) {
+      // Setup shader
       this.gl.uniformMatrix4fv(
         this.gl.getUniformLocation(this.program, 'worldModel'),
         false,
         worldModel,
       );
 
-      for (const { vertCount, glBuffer } of this.bufferedMeshes[meshId]) {
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, glBuffer);
+      this.gl.vertexAttribPointer(posAttrib, 3, this.gl.FLOAT, false, 0, 0);
+      this.gl.enableVertexAttribArray(posAttrib);
 
-        const posAttrib = this.gl.getAttribLocation(this.program, 'pos');
-        this.gl.vertexAttribPointer(posAttrib, 3, this.gl.FLOAT, false, 0, 0);
-        this.gl.enableVertexAttribArray(posAttrib);
-
-        this.gl.drawArrays(this.gl.LINE_LOOP, 0, vertCount);
-      }
+      // Draw geometry
+      const { vertices, lineIndices, numLineIndices } = this.bufferedMeshes[
+        meshId
+      ];
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertices);
+      this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, lineIndices);
+      this.gl.drawElements(
+        this.gl.LINES,
+        numLineIndices,
+        this.gl.UNSIGNED_SHORT,
+        0,
+      );
     }
   }
 }
