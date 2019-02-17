@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as process from 'process';
+import * as _ from 'lodash';
 
 import { isAscii, parseAscii } from './ascii';
 import { parseBinary } from './binary';
@@ -16,6 +17,7 @@ if (path === '-') {
 
 const stl = fs.readFileSync(path);
 const triangles = isAscii(stl) ? parseAscii(stl) : parseBinary(stl);
-console.log(
-  JSON.stringify(transform.scale(transform.center(triangles), 0.2, 0.2, 0.2)),
-);
+const verts = _.flatten(triangles);
+const centered = transform.center(verts);
+const scaled = transform.scale(centered, 0.2, 0.2, 0.2);
+console.log({ vertices: scaled });

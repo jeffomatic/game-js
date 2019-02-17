@@ -1,54 +1,56 @@
-export function center(triangles: number[][]): number[][] {
+export function center(verts: number[]): number[] {
+  if (verts.length % 3 !== 0) {
+    throw new Error(
+      `vertex array contains invalid number of elements: ${verts.length}`,
+    );
+  }
+
   const min = [Infinity, Infinity, Infinity];
   const max = [-Infinity, -Infinity, -Infinity];
 
-  for (const tri of triangles) {
-    for (let v = 0; v < tri.length / 3; v += 1) {
-      for (let d = 0; d < 3; d += 1) {
-        min[d] = Math.min(min[d], tri[3 * v + d]);
-        max[d] = Math.max(max[d], tri[3 * v + d]);
-      }
-    }
+  for (let i = 0; i < verts.length; i += 3) {
+    min[0] = Math.min(min[0], verts[i + 0]);
+    max[0] = Math.max(max[0], verts[i + 0]);
+    min[1] = Math.min(min[1], verts[i + 1]);
+    max[1] = Math.max(max[1], verts[i + 1]);
+    min[2] = Math.min(min[2], verts[i + 2]);
+    max[2] = Math.max(max[2], verts[i + 2]);
   }
 
-  const offset = [0, 0, 0];
-  for (let d = 0; d < 3; d += 1) {
-    // align max value to origin, then shift by half of the span
-    offset[d] = -max[d] + Math.abs(max[d] - min[d]) / 2;
-  }
+  const offset = [
+    -max[0] + Math.abs(max[0] - min[0]) / 2,
+    -max[1] + Math.abs(max[1] - min[1]) / 2,
+    -max[2] + Math.abs(max[2] - min[2]) / 2,
+  ];
 
   const res = [];
-  for (const t in triangles) {
-    const face = triangles[t];
-    res[t] = [];
-    for (let v = 0; v < face.length / 3; v += 1) {
-      for (let d = 0; d < 3; d += 1) {
-        const i = 3 * v + d;
-        res[t][i] = face[i] + offset[d];
-      }
-    }
+  for (let i = 0; i < verts.length; i += 3) {
+    res[i + 0] = verts[i + 0] + offset[0];
+    res[i + 1] = verts[i + 1] + offset[1];
+    res[i + 2] = verts[i + 2] + offset[2];
   }
 
   return res;
 }
 
 export function scale(
-  triangles: number[][],
+  verts: number[],
   x: number,
   y: number,
   z: number,
-): number[][] {
-  const k = [x, y, z];
+): number[] {
+  if (verts.length % 3 !== 0) {
+    throw new Error(
+      `vertex array contains invalid number of elements: ${verts.length}`,
+    );
+  }
+
+  const s = [x, y, z];
   const res = [];
-  for (const f in triangles) {
-    const face = triangles[f];
-    res[f] = [];
-    for (let v = 0; v < face.length / 3; v += 1) {
-      for (let d = 0; d < 3; d += 1) {
-        const i = 3 * v + d;
-        res[f][i] = face[i] * k[d];
-      }
-    }
+  for (let i = 0; i < verts.length; i += 3) {
+    res[i + 0] = verts[i + 0] + s[0];
+    res[i + 1] = verts[i + 1] + s[1];
+    res[i + 2] = verts[i + 2] + s[2];
   }
 
   return res;
