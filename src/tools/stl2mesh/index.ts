@@ -20,7 +20,7 @@ const triangles = isAscii(stl) ? parseAscii(stl) : parseBinary(stl);
 const rawVerts = _.flatten(triangles);
 const centered = transform.center(rawVerts);
 const vertices = transform.scale(centered, 0.2, 0.2, 0.2);
-const triangleIndices = _.range(0, vertices.length / 3).map((unused, i) => i);
+const triangleIndices = _.range(0, vertices.length / 3);
 
 const lineIndices = [];
 for (let i = 0; i < vertices.length / 3; i += 3) {
