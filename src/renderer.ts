@@ -194,8 +194,18 @@ export class Renderer {
         triangleIndices,
         numTriangleIndices,
       } = this.bufferedMeshes[meshId];
+
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertices);
       this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, triangleIndices);
+      this.gl.vertexAttribPointer(
+        this.gl.getAttribLocation(this.program, 'pos'),
+        3,
+        this.gl.FLOAT,
+        false,
+        0,
+        0,
+      );
+
       this.gl.drawElements(
         this.gl.TRIANGLES,
         numTriangleIndices,
@@ -216,8 +226,18 @@ export class Renderer {
       const { vertices, lineIndices, numLineIndices } = this.bufferedMeshes[
         meshId
       ];
+
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertices);
       this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, lineIndices);
+      this.gl.vertexAttribPointer(
+        this.gl.getAttribLocation(this.program, 'pos'),
+        3,
+        this.gl.FLOAT,
+        false,
+        0,
+        0,
+      );
+
       this.gl.drawElements(
         this.gl.LINES,
         numLineIndices,

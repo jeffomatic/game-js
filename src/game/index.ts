@@ -21,7 +21,8 @@ export class Game implements IGame {
     this.keyboard = keyboard;
 
     this.renderer = new Renderer(gl);
-    this.renderer.addMesh('entity', meshes.dodecahedron);
+    this.renderer.addMesh('cube', meshes.cube);
+    this.renderer.addMesh('dodecahedron', meshes.dodecahedron);
 
     this.components = new ComponentManager();
 
@@ -29,7 +30,7 @@ export class Game implements IGame {
     _.range(50).forEach(i => {
       const id = `entity${i}`;
 
-      const c = new Character('entity');
+      const c = new Character(i % 2 === 0 ? 'cube' : 'dodecahedron');
       this.components.characters.add(id, c);
 
       const t = new Transform();
