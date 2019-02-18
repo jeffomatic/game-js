@@ -90,6 +90,9 @@ export class Renderer {
     // Load shader program
     this.program = linkProgram(this.gl, [vShader, fShader]);
     this.gl.useProgram(this.program);
+    this.gl.enableVertexAttribArray(
+      this.gl.getAttribLocation(this.program, 'pos'),
+    );
 
     // Global rendering state
     this.gl.enable(this.gl.DEPTH_TEST);
@@ -108,6 +111,14 @@ export class Renderer {
       this.gl.ARRAY_BUFFER,
       new Float32Array(raw.vertices),
       this.gl.STATIC_DRAW,
+    );
+    this.gl.vertexAttribPointer(
+      this.gl.getAttribLocation(this.program, 'pos'),
+      3,
+      this.gl.FLOAT,
+      false,
+      0,
+      0,
     );
 
     const triangleIndices = this.gl.createBuffer();
@@ -164,7 +175,10 @@ export class Renderer {
     );
 
     // Common shader params
-    const posAttrib = this.gl.getAttribLocation(this.program, 'pos');
+    const worldModelUniform = this.gl.getUniformLocation(
+      this.program,
+      'worldModel',
+    );
 
     // Depth pass
     this.gl.depthFunc(this.gl.LESS);
@@ -172,14 +186,7 @@ export class Renderer {
 
     for (const { worldModel, meshId } of renderables) {
       // Setup shader
-      this.gl.uniformMatrix4fv(
-        this.gl.getUniformLocation(this.program, 'worldModel'),
-        false,
-        worldModel,
-      );
-
-      this.gl.vertexAttribPointer(posAttrib, 3, this.gl.FLOAT, false, 0, 0);
-      this.gl.enableVertexAttribArray(posAttrib);
+      this.gl.uniformMatrix4fv(worldModelUniform, false, worldModel);
 
       // Draw geometry
       const {
@@ -203,14 +210,7 @@ export class Renderer {
 
     for (const { worldModel, meshId } of renderables) {
       // Setup shader
-      this.gl.uniformMatrix4fv(
-        this.gl.getUniformLocation(this.program, 'worldModel'),
-        false,
-        worldModel,
-      );
-
-      this.gl.vertexAttribPointer(posAttrib, 3, this.gl.FLOAT, false, 0, 0);
-      this.gl.enableVertexAttribArray(posAttrib);
+      this.gl.uniformMatrix4fv(worldModelUniform, false, worldModel);
 
       // Draw geometry
       const { vertices, lineIndices, numLineIndices } = this.bufferedMeshes[

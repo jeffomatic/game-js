@@ -17,7 +17,22 @@ if (path === '-') {
 
 const stl = fs.readFileSync(path);
 const triangles = isAscii(stl) ? parseAscii(stl) : parseBinary(stl);
-const verts = _.flatten(triangles);
-const centered = transform.center(verts);
-const scaled = transform.scale(centered, 0.2, 0.2, 0.2);
-console.log({ vertices: scaled });
+const rawVerts = _.flatten(triangles);
+const centered = transform.center(rawVerts);
+const vertices = transform.scale(centered, 0.2, 0.2, 0.2);
+const triangleIndices = _.range(0, vertices.length / 3).map((unused, i) => i);
+
+const lineIndices = [];
+for (let i = 0; i < vertices.length / 3; i += 3) {
+  lineIndices.push(i + 0, i + 1);
+  lineIndices.push(i + 1, i + 2);
+  lineIndices.push(i + 2, i + 0);
+}
+
+console.log(
+  JSON.stringify({
+    vertices,
+    triangleIndices,
+    lineIndices,
+  }),
+);
