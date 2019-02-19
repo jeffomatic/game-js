@@ -1,3 +1,9 @@
+#version 300 es
+
+precision mediump float;
+
+out vec4 outputColor;
+
 void main(void) {
-  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+  outputColor = vec4(0.0, 1.0, 0.0, 1.0);
 }

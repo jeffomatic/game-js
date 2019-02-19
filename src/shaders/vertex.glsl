@@ -1,4 +1,6 @@
-attribute vec3 pos;
+#version 300 es
+
+in vec3 pos;
 uniform mat4 worldModel;
 uniform mat4 projView;
 

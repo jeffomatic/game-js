@@ -17,7 +17,7 @@ export class Game implements IGame {
 
   components: ComponentManager;
 
-  constructor(gl: WebGLRenderingContext, keyboard: Keyboard) {
+  constructor(gl: WebGL2RenderingContext, keyboard: Keyboard) {
     this.keyboard = keyboard;
 
     this.renderer = new Renderer(gl);

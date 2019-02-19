@@ -6,7 +6,7 @@ import fragmentGlsl from './shaders/fragment.glsl';
 import vertexGlsl from './shaders/vertex.glsl';
 
 function compileShader(
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   type: number,
   src: string,
 ): WebGLShader {
@@ -22,7 +22,7 @@ function compileShader(
 }
 
 function linkProgram(
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   shaders: WebGLShader[],
 ): WebGLProgram {
   const program = gl.createProgram();
@@ -60,7 +60,7 @@ interface BufferedMesh {
 }
 
 export class Renderer {
-  gl: WebGLRenderingContext;
+  gl: WebGL2RenderingContext;
   program: WebGLProgram;
 
   canvasSize: vec2;
@@ -72,7 +72,7 @@ export class Renderer {
 
   bufferedMeshes: { [id: string]: BufferedMesh };
 
-  constructor(gl: WebGLRenderingContext) {
+  constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
 
     this.fov = Math.PI / 2;

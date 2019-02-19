@@ -5,9 +5,9 @@ import { Keyboard } from './keyboard';
 const canvas = document.createElement('canvas');
 document.body.appendChild(canvas);
 
-const gl = canvas.getContext('webgl');
+const gl = canvas.getContext('webgl2');
 if (!gl) {
-  throw new Error('Could not initialize WebGL.');
+  throw new Error('Could not initialize WebGL 2.0.');
 }
 
 const game = new Game(gl, new Keyboard());
