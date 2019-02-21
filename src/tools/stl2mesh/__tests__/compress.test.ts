@@ -1,4 +1,4 @@
-import { equal, compare, compare3, search3, dict3 } from '../compress';
+import { equal, compare, compare3, search, search3, dict3 } from '../compress';
 
 test('equal', () => {
   expect(equal(1, 1)).toBe(true);
@@ -39,6 +39,13 @@ test('search3', () => {
   expect(search3([[0, 0, 0], [1, 1, 1], [2, 2, 2]], [0.5, 0.5, 0.5])).toBe(-1);
   expect(search3([[0.1, 0, 0]], [0, 0, 0], 0.1)).toBe(0);
   expect(search3([[0.11, 0, 0]], [0, 0, 0], 0.1)).toBe(-1);
+});
+
+test('search', () => {
+  expect(search([], v => compare(1, v))).toBe(-1);
+  expect(search([1], v => compare(1, v))).toBe(0);
+  expect(search([0, 1], v => compare(1, v))).toBe(1);
+  expect(search([1, 2], v => compare(1, v))).toBe(0);
 });
 
 test('dict3', () => {

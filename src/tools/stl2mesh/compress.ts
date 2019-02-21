@@ -57,6 +57,27 @@ export function compare3(
   return 0;
 }
 
+export function search<T>(sorted: T[], check: (item: T) => number): number {
+  let min = 0;
+  let max = sorted.length - 1;
+
+  while (min <= max) {
+    const i = min + Math.floor((max - min) / 2);
+    const c = check(sorted[i]);
+    if (c === 0) {
+      return i;
+    }
+
+    if (c === -1) {
+      max = i - 1;
+    } else {
+      min = i + 1;
+    }
+  }
+
+  return -1;
+}
+
 export function search3(
   sorted: number[][],
   want: number[],

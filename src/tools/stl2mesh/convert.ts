@@ -2,6 +2,7 @@ import * as _ from 'lodash';
 
 import * as transform from './transform';
 import * as compress from './compress';
+import * as edgeFilter from './edge_filter';
 
 export interface Mesh {
   vertices: number[];
@@ -26,17 +27,7 @@ export function convert(tris: number[][], opts: ConvertOpts = {}): Mesh {
   const vertices = transform.scale(centered, scale, scale, scale);
 
   const triangleIndices = chunked.map(v => compress.search3(dict, v, epsilon));
-
-  const lineVerts = [];
-  for (let t = 0; t < chunked.length; t += 3) {
-    lineVerts.push(chunked[t + 0]);
-    lineVerts.push(chunked[t + 1]);
-    lineVerts.push(chunked[t + 1]);
-    lineVerts.push(chunked[t + 2]);
-    lineVerts.push(chunked[t + 2]);
-    lineVerts.push(chunked[t + 0]);
-  }
-  const lineIndices = lineVerts.map(v => compress.search3(dict, v, epsilon));
+  const lineIndices = edgeFilter.filter(dict, triangleIndices);
 
   return { vertices, triangleIndices, lineIndices };
 }
