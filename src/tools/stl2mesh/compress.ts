@@ -17,12 +17,7 @@ export function compare(
   if (equal(a, b, epsilon)) {
     return 0;
   }
-
-  if (a < b) {
-    return -1;
-  }
-
-  return 1;
+  return a < b ? -1 : 1;
 }
 
 export function compare3(
@@ -46,15 +41,7 @@ export function compare3(
     return 1;
   }
 
-  const c2 = compare(a[2], b[2], epsilon);
-  if (c2 === -1) {
-    return -1;
-  }
-  if (c2 === 1) {
-    return 1;
-  }
-
-  return 0;
+  return compare(a[2], b[2], epsilon);
 }
 
 export function search<T>(sorted: T[], check: (item: T) => number): number {
@@ -78,33 +65,6 @@ export function search<T>(sorted: T[], check: (item: T) => number): number {
   return -1;
 }
 
-export function search3(
-  sorted: number[][],
-  want: number[],
-  epsilon = defaultEpsilon,
-): number {
-  let min = 0;
-  let max = sorted.length - 1;
-
-  while (min <= max) {
-    const i = min + Math.floor((max - min) / 2);
-    const c = compare3(want, sorted[i], epsilon);
-    if (c === 0) {
-      return i;
-    }
-
-    if (c === -1) {
-      max = i - 1;
-    } else {
-      min = i + 1;
-    }
-  }
-
-  return -1;
-}
-
-export function dict3(vals: number[][], epsilon = defaultEpsilon): number[][] {
-  const cmp = (a, b) => compare3(a, b, epsilon);
-  const eq = (a, b) => compare3(a, b, epsilon) === 0;
-  return _.uniqWith(vals.slice().sort(cmp), eq);
+export function makeDict<T>(vals: T[], compare: (a: T, b: T) => number): T[] {
+  return _.uniqWith(vals.slice().sort(compare), (a, b) => compare(a, b) === 0);
 }
