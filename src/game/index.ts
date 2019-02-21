@@ -48,6 +48,7 @@ export class Game implements IGame {
           axis: vec3.fromValues(1, 0, 0),
         }),
       );
+      script.add(new scripts.Scale(period / 5, [0.75, 1.25]));
       this.components.scripts.add(id, script);
     });
 
