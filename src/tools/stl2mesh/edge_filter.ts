@@ -3,7 +3,11 @@ import * as _ from 'lodash';
 import * as array from './array';
 import * as math from './math';
 
-export function filter(dict: number[][], triangleIndices: number[]): number[] {
+export function filter(
+  dict: number[][],
+  triangleIndices: number[],
+  epsilon = math.defaultEpsilon,
+): number[] {
   const chunkedTris = _.chunk(triangleIndices, 3);
   const chunkedEdges = chunkedTris.map(vertIds => {
     return [
@@ -23,14 +27,14 @@ export function filter(dict: number[][], triangleIndices: number[]): number[] {
     const edges = chunkedEdges[i];
     const normal = normals[i];
     const groupId = array.search(groups, group =>
-      math.compare3(normal, group.normal),
+      math.compare3(normal, group.normal, epsilon),
     );
     if (groupId < 0) {
       groups.push({
         normal,
         edges,
       });
-      groups.sort((a, b) => math.compare3(a.normal, b.normal));
+      groups.sort((a, b) => math.compare3(a.normal, b.normal, epsilon));
     } else {
       groups[groupId].edges = groups[groupId].edges.concat(edges);
     }
@@ -38,11 +42,7 @@ export function filter(dict: number[][], triangleIndices: number[]): number[] {
 
   const groupEdges = groups.reduce((accum, group) => {
     const noDupes = array.removeDupes(group.edges, (a, b) => {
-      const diff = a[0] - b[0];
-      if (diff !== 0) {
-        return diff;
-      }
-      return a[1] - b[1];
+      return a[0] !== b[0] ? a[0] - b[0] : a[1] - b[1];
     });
     return accum.concat(noDupes);
   }, []);
