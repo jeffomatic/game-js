@@ -15,6 +15,6 @@ if (path === '-') {
 
 const stl = fs.readFileSync(path);
 const triangles = parse(stl);
-const mesh = convert(triangles, { scale: 0.2 });
+const mesh = convert(triangles, { scale: 0.001 });
 
 console.log(JSON.stringify(mesh));
