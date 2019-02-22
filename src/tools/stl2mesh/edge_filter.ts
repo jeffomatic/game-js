@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 
-import { search, compare3 } from './compress';
+import { search } from './compress';
+import * as math from './math';
 
 function removeDupes<T>(items: T[], compare: (a: T, b: T) => number): T[] {
   if (items.length < 2) {
@@ -30,29 +31,6 @@ function removeDupes<T>(items: T[], compare: (a: T, b: T) => number): T[] {
   return res;
 }
 
-function normalize(vec: number[]): number[] {
-  const mag = Math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-  return [vec[0] / mag, vec[1] / mag, vec[2] / mag];
-}
-
-function normal(verts: number[][]): number[] {
-  const v = [
-    verts[1][0] - verts[0][0],
-    verts[1][1] - verts[0][1],
-    verts[1][2] - verts[0][2],
-  ];
-  const w = [
-    verts[2][0] - verts[0][0],
-    verts[2][1] - verts[0][1],
-    verts[2][2] - verts[0][2],
-  ];
-  return [
-    v[1] * w[2] - v[2] * w[1],
-    v[2] * w[0] - v[0] * w[2],
-    v[0] * w[1] - v[1] * w[0],
-  ];
-}
-
 export function filter(dict: number[][], triangleIndices: number[]): number[] {
   const chunkedTris = _.chunk(triangleIndices, 3);
   const chunkedEdges = chunkedTris.map(vertIds => {
@@ -64,7 +42,7 @@ export function filter(dict: number[][], triangleIndices: number[]): number[] {
   });
   const normals = chunkedTris.map(vertIds => {
     const verts = vertIds.map(id => dict[id]);
-    return normalize(normal(verts));
+    return math.normalize3(math.triangleNormal(verts));
   });
 
   // Group edge sets by normal
@@ -72,13 +50,15 @@ export function filter(dict: number[][], triangleIndices: number[]): number[] {
   for (let i = 0; i < chunkedTris.length; i += 1) {
     const edges = chunkedEdges[i];
     const normal = normals[i];
-    const groupId = search(groups, group => compare3(normal, group.normal));
+    const groupId = search(groups, group =>
+      math.compare3(normal, group.normal),
+    );
     if (groupId < 0) {
       groups.push({
         normal,
         edges,
       });
-      groups.sort((a, b) => compare3(a.normal, b.normal));
+      groups.sort((a, b) => math.compare3(a.normal, b.normal));
     } else {
       groups[groupId].edges = groups[groupId].edges.concat(edges);
     }
