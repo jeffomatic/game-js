@@ -1,4 +1,4 @@
-import { search, makeDict } from '../compress';
+import { search, makeDict, removeDupes } from '../array';
 import * as math from '../math';
 
 test('search', () => {
@@ -23,4 +23,13 @@ test('makeDict', () => {
   expect(
     makeDict([[1, 1, 1], [0, 0, 0], [2, 2, 2], [0, 0, 0]], math.compare3),
   ).toEqual([[0, 0, 0], [1, 1, 1], [2, 2, 2]]);
+});
+
+test('removeDupes', () => {
+  expect(removeDupes([], (a, b) => a - b)).toEqual([]);
+  expect(removeDupes([1], (a, b) => a - b)).toEqual([1]);
+  expect(removeDupes([1, 2], (a, b) => a - b)).toEqual([1, 2]);
+  expect(removeDupes([2, 1], (a, b) => a - b)).toEqual([1, 2]);
+  expect(removeDupes([2, 1, 1, 2], (a, b) => a - b)).toEqual([]);
+  expect(removeDupes([2, 1, 1, 3, 2], (a, b) => a - b)).toEqual([3]);
 });

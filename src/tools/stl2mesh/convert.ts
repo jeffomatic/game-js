@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import * as compress from './compress';
+import * as array from './array';
 import * as edgeFilter from './edge_filter';
 import * as math from './math';
 import * as transform from './transform';
@@ -21,16 +21,14 @@ export function convert(tris: number[][], opts: ConvertOpts = {}): Mesh {
   const scale = opts.scale || 1;
 
   const chunked = _.chunk(_.flatten(tris), 3);
-  const dict = compress.makeDict(chunked, (a, b) =>
-    math.compare3(a, b, epsilon),
-  );
+  const dict = array.makeDict(chunked, (a, b) => math.compare3(a, b, epsilon));
 
   const flattenedDict = _.flatten(dict);
   const centered = transform.center(flattenedDict);
   const vertices = transform.scale(centered, scale, scale, scale);
 
   const triangleIndices = chunked.map(v =>
-    compress.search(dict, vert => math.compare3(v, vert, epsilon)),
+    array.search(dict, vert => math.compare3(v, vert, epsilon)),
   );
   const lineIndices = edgeFilter.filter(dict, triangleIndices);
 
