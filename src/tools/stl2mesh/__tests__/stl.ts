@@ -1,4 +1,4 @@
-import { isAscii, parseAscii, parseBinary } from '../parse_stl';
+import { isAscii, parseAscii, parseBinary } from '../stl';
 
 test('isAcii', () => {
   expect(isAscii(new Buffer('solid'))).toBe(true);
