@@ -1,29 +1,22 @@
-import { equal, compare, compare3, normalize, triangleNormal } from '../math';
-
-test('equal', () => {
-  expect(equal(1, 1)).toBe(true);
-  expect(equal(-1, -1)).toBe(true);
-  expect(equal(1, 1.01, 0.01)).toBe(true);
-  expect(equal(1, 0.991, 0.01)).toBe(true);
-  expect(equal(1, 1.011, 0.01)).toBe(false);
-});
+import { compare, compare3, normalize, triangleNormal } from '../math';
 
 test('compare', () => {
   expect(compare(1, 1)).toBe(0);
-  expect(compare(1, 2)).toBe(-1);
-  expect(compare(2, 1)).toBe(1);
+  expect(compare(1, 2)).toBeLessThan(0);
+  expect(compare(2, 1)).toBeGreaterThan(0);
   expect(compare(1, 1.01, 0.01)).toBe(0);
   expect(compare(1, 0.991, 0.01)).toBe(0);
-  expect(compare(1, 1.011, 0.01)).toBe(-1);
+  expect(compare(1, 1.011, 0.01)).toBeLessThan(0);
+  expect(compare(1.011, 1, 0.01)).toBeGreaterThan(0);
 });
 
 test('compare3', () => {
   expect(compare3([1, 1, 1], [1, 1, 1])).toBe(0);
-  expect(compare3([1, 1, 1], [1, 1, 2])).toBe(-1);
-  expect(compare3([1, 1, 2], [1, 1, 1])).toBe(1);
-  expect(compare3([0.99, -999, -999], [1, 999, 999])).toBe(-1);
-  expect(compare3([1.01, 1, 1], [1, 999, 999])).toBe(1);
-  expect(compare3([1.01, 1, 1], [1, 999, 999], 0.01)).toBe(-1);
+  expect(compare3([1, 1, 1], [1, 1, 2])).toBeLessThan(0);
+  expect(compare3([1, 1, 2], [1, 1, 1])).toBeGreaterThan(0);
+  expect(compare3([0.99, -999, -999], [1, 999, 999])).toBeLessThan(0);
+  expect(compare3([1.01, 1, 1], [1, 999, 999])).toBeGreaterThan(0);
+  expect(compare3([1.01, 1, 1], [1, 999, 999], 0.01)).toBeLessThan(0);
 });
 
 test('normalize3', () => {

@@ -1,21 +1,18 @@
 export const defaultEpsilon = 0.000001;
 
-/**
- * Borrowed from gl-matrix
- */
-export function equal(a: number, b: number, epsilon = defaultEpsilon): boolean {
-  return Math.abs(a - b) <= epsilon * Math.max(1.0, Math.abs(a), Math.abs(b));
-}
-
 export function compare(
   a: number,
   b: number,
   epsilon = defaultEpsilon,
 ): number {
-  if (equal(a, b, epsilon)) {
+  const diff = a - b;
+
+  // Scaled epsilon borrowed from gl-matrix's equal()
+  if (Math.abs(diff) <= epsilon * Math.max(1.0, Math.abs(a), Math.abs(b))) {
     return 0;
   }
-  return a < b ? -1 : 1;
+
+  return diff;
 }
 
 export function compare3(
