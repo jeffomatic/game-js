@@ -1,5 +1,7 @@
 import * as _ from 'lodash';
 
+export type CompareFunc<T> = (a: T, b: T) => number;
+
 export function search<T>(sorted: T[], check: (item: T) => number): number {
   let min = 0;
   let max = sorted.length - 1;
@@ -21,14 +23,11 @@ export function search<T>(sorted: T[], check: (item: T) => number): number {
   return -1;
 }
 
-export function makeDict<T>(vals: T[], compare: (a: T, b: T) => number): T[] {
+export function makeDict<T>(vals: T[], compare: CompareFunc<T>): T[] {
   return _.uniqWith(vals.slice().sort(compare), (a, b) => compare(a, b) === 0);
 }
 
-export function removeDupes<T>(
-  items: T[],
-  compare: (a: T, b: T) => number,
-): T[] {
+export function removeDupes<T>(items: T[], compare: CompareFunc<T>): T[] {
   if (items.length < 2) {
     return items;
   }
@@ -56,4 +55,24 @@ export function removeDupes<T>(
   }
 
   return res;
+}
+
+export function pushSorted<T>(
+  sorted: T[],
+  toAdd: T,
+  compare: CompareFunc<T>,
+): T[] {
+  sorted.push(toAdd);
+
+  for (let i = sorted.length - 2; i >= 0; i -= 1) {
+    if (compare(sorted[i], sorted[i + 1]) <= 0) {
+      break;
+    }
+
+    const temp = sorted[i];
+    sorted[i] = sorted[i + 1];
+    sorted[i + 1] = temp;
+  }
+
+  return sorted;
 }

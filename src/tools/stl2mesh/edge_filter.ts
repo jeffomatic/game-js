@@ -30,13 +30,16 @@ export function filter(
       math.compare3(normal, group.normal, epsilon),
     );
     if (groupId < 0) {
-      groups.push({
-        normal,
-        edges,
-      });
-      groups.sort((a, b) => math.compare3(a.normal, b.normal, epsilon));
+      array.pushSorted(
+        groups,
+        {
+          normal,
+          edges,
+        },
+        (a, b) => math.compare3(a.normal, b.normal, epsilon),
+      );
     } else {
-      groups[groupId].edges = groups[groupId].edges.concat(edges);
+      groups[groupId].edges.push(...edges);
     }
   }
 

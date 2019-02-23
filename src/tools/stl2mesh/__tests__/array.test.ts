@@ -1,4 +1,4 @@
-import { search, makeDict, removeDupes } from '../array';
+import { search, makeDict, removeDupes, pushSorted } from '../array';
 import * as math from '../math';
 
 test('search', () => {
@@ -32,4 +32,11 @@ test('removeDupes', () => {
   expect(removeDupes([2, 1], (a, b) => a - b)).toEqual([1, 2]);
   expect(removeDupes([2, 1, 1, 2], (a, b) => a - b)).toEqual([]);
   expect(removeDupes([2, 1, 1, 3, 2], (a, b) => a - b)).toEqual([3]);
+});
+
+test('pushSorted', () => {
+  expect(pushSorted([], 1, (a, b) => a - b)).toEqual([1]);
+  expect(pushSorted([0], 1, (a, b) => a - b)).toEqual([0, 1]);
+  expect(pushSorted([2], 1, (a, b) => a - b)).toEqual([1, 2]);
+  expect(pushSorted([0, 2], 1, (a, b) => a - b)).toEqual([0, 1, 2]);
 });
