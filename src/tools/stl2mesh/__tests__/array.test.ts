@@ -1,4 +1,10 @@
-import { search, makeDict, removeDupes, pushSorted } from '../array';
+import {
+  search,
+  makeDict,
+  removeDupes,
+  pushSorted,
+  uniqSorted,
+} from '../array';
 import * as math from '../math';
 
 test('search', () => {
@@ -39,4 +45,11 @@ test('pushSorted', () => {
   expect(pushSorted([0], 1, (a, b) => a - b)).toEqual([0, 1]);
   expect(pushSorted([2], 1, (a, b) => a - b)).toEqual([1, 2]);
   expect(pushSorted([0, 2], 1, (a, b) => a - b)).toEqual([0, 1, 2]);
+});
+
+test('uniqSorted', () => {
+  expect(uniqSorted([], (a, b) => a - b)).toEqual([]);
+  expect(uniqSorted([0], (a, b) => a - b)).toEqual([0]);
+  expect(uniqSorted([0, 1], (a, b) => a - b)).toEqual([0, 1]);
+  expect(uniqSorted([0, 0], (a, b) => a - b)).toEqual([0]);
 });

@@ -3,6 +3,14 @@ import * as _ from 'lodash';
 import * as array from './array';
 import * as math from './math';
 
+function compareIndexEdges(a: [number, number], b: [number, number]): number {
+  const d = a[0] - b[0];
+  if (d !== 0) {
+    return d;
+  }
+  return a[1] - b[1];
+}
+
 export function filter(
   dict: number[][],
   triangleIndices: number[],
@@ -43,15 +51,15 @@ export function filter(
     }
   }
 
-  const groupEdges = [];
+  const withoutDupes = [];
   for (const group of groups) {
     const noDupes = array.removeDupes(group.edges, (a, b) => {
       return a[0] !== b[0] ? a[0] - b[0] : a[1] - b[1];
     });
-    groupEdges.push(...noDupes);
+    withoutDupes.push(...noDupes);
   }
 
-  return _.flatten(
-    _.uniqWith(groupEdges, (a, b) => a[0] === b[0] && a[1] === b[1]),
-  );
+  const sorted = withoutDupes.sort(compareIndexEdges);
+  const deduped = array.uniqSorted(sorted, compareIndexEdges);
+  return _.flatten(deduped);
 }

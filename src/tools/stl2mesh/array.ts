@@ -76,3 +76,21 @@ export function pushSorted<T>(
 
   return sorted;
 }
+
+export function uniqSorted<T>(sorted: T[], compare: CompareFunc<T>): T[] {
+  if (sorted.length < 2) {
+    return sorted;
+  }
+
+  const res = [sorted[0]];
+  let prev = sorted[0];
+  for (let i = 1; i < sorted.length; i += 1) {
+    if (compare(prev, sorted[i]) === 0) {
+      continue;
+    }
+    res.push(sorted[i]);
+    prev = sorted[i];
+  }
+
+  return res;
+}
