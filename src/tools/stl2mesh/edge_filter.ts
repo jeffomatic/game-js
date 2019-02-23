@@ -43,12 +43,13 @@ export function filter(
     }
   }
 
-  const groupEdges = groups.reduce((accum, group) => {
+  const groupEdges = [];
+  for (const group of groups) {
     const noDupes = array.removeDupes(group.edges, (a, b) => {
       return a[0] !== b[0] ? a[0] - b[0] : a[1] - b[1];
     });
-    return accum.concat(noDupes);
-  }, []);
+    groupEdges.push(...noDupes);
+  }
 
   return _.flatten(
     _.uniqWith(groupEdges, (a, b) => a[0] === b[0] && a[1] === b[1]),
