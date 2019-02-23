@@ -11,7 +11,7 @@ export function search<T>(sorted: T[], check: (item: T) => number): number {
       return i;
     }
 
-    if (c === -1) {
+    if (c < 0) {
       max = i - 1;
     } else {
       min = i + 1;
