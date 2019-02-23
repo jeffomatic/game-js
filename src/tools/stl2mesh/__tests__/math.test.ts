@@ -1,4 +1,4 @@
-import { equal, compare, compare3, normalize3, triangleNormal } from '../math';
+import { equal, compare, compare3, normalize, triangleNormal } from '../math';
 
 test('equal', () => {
   expect(equal(1, 1)).toBe(true);
@@ -27,12 +27,12 @@ test('compare3', () => {
 });
 
 test('normalize3', () => {
-  expect(normalize3([1, 0, 0])).toEqual([1, 0, 0]);
-  expect(normalize3([0, 1, 0])).toEqual([0, 1, 0]);
-  expect(normalize3([0, 0, 1])).toEqual([0, 0, 1]);
-  expect(normalize3([5, 0, 0])).toEqual([1, 0, 0]);
-  expect(normalize3([0, 5, 0])).toEqual([0, 1, 0]);
-  expect(normalize3([0, 0, 5])).toEqual([0, 0, 1]);
+  expect(normalize([1, 0, 0])).toEqual([1, 0, 0]);
+  expect(normalize([0, 1, 0])).toEqual([0, 1, 0]);
+  expect(normalize([0, 0, 1])).toEqual([0, 0, 1]);
+  expect(normalize([5, 0, 0])).toEqual([1, 0, 0]);
+  expect(normalize([0, 5, 0])).toEqual([0, 1, 0]);
+  expect(normalize([0, 0, 5])).toEqual([0, 0, 1]);
 });
 
 test('triangleNormal', () => {

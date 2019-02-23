@@ -36,7 +36,7 @@ export function compare3(
   return compare(a[2], b[2], epsilon);
 }
 
-export function normalize3(vec: number[]): number[] {
+export function normalize(vec: number[]): number[] {
   const mag = Math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
   return [vec[0] / mag, vec[1] / mag, vec[2] / mag];
 }

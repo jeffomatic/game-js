@@ -18,7 +18,7 @@ export function filter(
   });
   const normals = chunkedTris.map(vertIds => {
     const verts = vertIds.map(id => dict[id]);
-    return math.normalize3(math.triangleNormal(verts));
+    return math.normalize(math.triangleNormal(verts));
   });
 
   // Group edge sets by normal
