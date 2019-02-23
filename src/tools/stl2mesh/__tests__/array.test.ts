@@ -1,7 +1,7 @@
 import {
   search,
   makeDict,
-  removeDupes,
+  removeNonunique,
   pushSorted,
   uniqSorted,
 } from '../array';
@@ -31,13 +31,13 @@ test('makeDict', () => {
   ).toEqual([[0, 0, 0], [1, 1, 1], [2, 2, 2]]);
 });
 
-test('removeDupes', () => {
-  expect(removeDupes([], (a, b) => a - b)).toEqual([]);
-  expect(removeDupes([1], (a, b) => a - b)).toEqual([1]);
-  expect(removeDupes([1, 2], (a, b) => a - b)).toEqual([1, 2]);
-  expect(removeDupes([2, 1], (a, b) => a - b)).toEqual([1, 2]);
-  expect(removeDupes([2, 1, 1, 2], (a, b) => a - b)).toEqual([]);
-  expect(removeDupes([2, 1, 1, 3, 2], (a, b) => a - b)).toEqual([3]);
+test('removeNonunique', () => {
+  expect(removeNonunique([], (a, b) => a - b)).toEqual([]);
+  expect(removeNonunique([1], (a, b) => a - b)).toEqual([1]);
+  expect(removeNonunique([1, 2], (a, b) => a - b)).toEqual([1, 2]);
+  expect(removeNonunique([2, 1], (a, b) => a - b)).toEqual([1, 2]);
+  expect(removeNonunique([2, 1, 1, 2], (a, b) => a - b)).toEqual([]);
+  expect(removeNonunique([2, 1, 1, 3, 2], (a, b) => a - b)).toEqual([3]);
 });
 
 test('pushSorted', () => {

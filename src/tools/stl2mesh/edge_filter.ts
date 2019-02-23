@@ -53,7 +53,7 @@ export function filter(
 
   const withoutDupes = [];
   for (const group of groups) {
-    const noDupes = array.removeDupes(group.edges, (a, b) => {
+    const noDupes = array.removeNonunique(group.edges, (a, b) => {
       return a[0] !== b[0] ? a[0] - b[0] : a[1] - b[1];
     });
     withoutDupes.push(...noDupes);

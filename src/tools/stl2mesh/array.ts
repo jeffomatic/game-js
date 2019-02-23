@@ -27,7 +27,7 @@ export function makeDict<T>(vals: T[], compare: CompareFunc<T>): T[] {
   return _.uniqWith(vals.slice().sort(compare), (a, b) => compare(a, b) === 0);
 }
 
-export function removeDupes<T>(items: T[], compare: CompareFunc<T>): T[] {
+export function removeNonunique<T>(items: T[], compare: CompareFunc<T>): T[] {
   if (items.length < 2) {
     return items;
   }
