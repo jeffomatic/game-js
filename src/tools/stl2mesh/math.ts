@@ -24,19 +24,13 @@ export function compare3(
   epsilon = defaultEpsilon,
 ): number {
   const c0 = compare(a[0], b[0], epsilon);
-  if (c0 === -1) {
-    return -1;
-  }
-  if (c0 === 1) {
-    return 1;
+  if (c0 !== 0) {
+    return c0;
   }
 
   const c1 = compare(a[1], b[1], epsilon);
-  if (c1 === -1) {
-    return -1;
-  }
-  if (c1 === 1) {
-    return 1;
+  if (c1 !== 0) {
+    return c1;
   }
 
   return compare(a[2], b[2], epsilon);
