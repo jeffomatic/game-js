@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import * as process from 'process';
 
 import * as stl from './stl';
-import { convert } from './convert';
 
 if (process.argv.length !== 3) {
   throw new Error(`invalid argument length: ${process.argv.length}`);
@@ -15,6 +14,6 @@ if (path === '-') {
 
 const buf = fs.readFileSync(path);
 const triangles = stl.parse(buf);
-const mesh = convert(triangles, { scale: 0.001 });
+const mesh = stl.convert(triangles, { scale: 0.001 });
 
 console.log(JSON.stringify(mesh));

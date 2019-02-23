@@ -1,4 +1,4 @@
-import { isAscii, parseAscii, parseBinary } from '../stl';
+import { isAscii, parseAscii, parseBinary, convert } from '../stl';
 
 test('isAcii', () => {
   expect(isAscii(new Buffer('solid'))).toBe(true);
@@ -71,4 +71,38 @@ test('parseBinary', () => {
     [30, 30, 30, 0, 30, 30, 0, 0, 30],
     [30, 30, 30, 0, 0, 30, 30, 0, 30],
   ]);
+});
+
+test('convert', () => {
+  expect(convert([])).toEqual({
+    vertices: [],
+    triangleIndices: [],
+    lineIndices: [],
+  });
+
+  expect(convert([[-1, -1, -1, 0, 0, 0, 1, 1, 1]])).toEqual({
+    vertices: [-1, -1, -1, 0, 0, 0, 1, 1, 1],
+    triangleIndices: [0, 1, 2],
+    lineIndices: [0, 1, 0, 2, 1, 2],
+  });
+
+  expect(convert([[0, 0, 0, 1, 1, 1, 2, 2, 2]])).toEqual({
+    vertices: [-1, -1, -1, 0, 0, 0, 1, 1, 1],
+    triangleIndices: [0, 1, 2],
+    lineIndices: [0, 1, 0, 2, 1, 2],
+  });
+
+  expect(convert([[0, 0, 0, 1, 1, 1, 2, 2, 2]])).toEqual({
+    vertices: [-1, -1, -1, 0, 0, 0, 1, 1, 1],
+    triangleIndices: [0, 1, 2],
+    lineIndices: [0, 1, 0, 2, 1, 2],
+  });
+
+  expect(
+    convert([[-1, -1, -1, 0, 0, 0, 1, 1, 1], [1, 1, 1, -1, -1, -1, 0, 0, 0]]),
+  ).toEqual({
+    vertices: [-1, -1, -1, 0, 0, 0, 1, 1, 1],
+    triangleIndices: [0, 1, 2, 2, 0, 1],
+    lineIndices: [0, 1, 0, 2, 1, 2],
+  });
 });

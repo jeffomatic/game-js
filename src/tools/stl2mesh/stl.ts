@@ -1,5 +1,11 @@
 import * as _ from 'lodash'; // tslint:disable-line
+
+import * as array from './array';
 import * as binaryParser from 'binary-parser';
+import * as edgeFilter from './edge_filter';
+import * as math from './math';
+import { Mesh } from './mesh';
+import * as transform from './transform';
 
 enum State {
   Start,
@@ -147,4 +153,28 @@ export function parseBinary(buf: Buffer): number[][] {
 
 export function parse(buf: Buffer): number[][] {
   return isAscii(buf) ? parseAscii(buf) : parseBinary(buf);
+}
+
+export interface ConvertOpts {
+  epsilon?: number;
+  scale?: number;
+}
+
+export function convert(tris: number[][], opts: ConvertOpts = {}): Mesh {
+  const epsilon = opts.epsilon || math.defaultEpsilon;
+  const scale = opts.scale || 1;
+
+  const chunked = _.chunk(_.flatten(tris), 3);
+  const dict = array.makeDict(chunked, (a, b) => math.compare3(a, b, epsilon));
+
+  const flattenedDict = _.flatten(dict);
+  const centered = transform.center(flattenedDict);
+  const vertices = transform.scale(centered, scale, scale, scale);
+
+  const triangleIndices = chunked.map(v =>
+    array.search(dict, vert => math.compare3(v, vert, epsilon)),
+  );
+  const lineIndices = edgeFilter.filter(dict, triangleIndices);
+
+  return { vertices, triangleIndices, lineIndices };
 }
