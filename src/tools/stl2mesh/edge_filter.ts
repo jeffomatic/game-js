@@ -70,6 +70,10 @@ export function filter(
     }
   });
 
+  if (verbose) {
+    console.error(`unique planes: ${groups.length}`);
+  }
+
   const withoutDupes = [];
   timer.measure('remove nonunique coplanar edges', () => {
     for (const group of groups) {
