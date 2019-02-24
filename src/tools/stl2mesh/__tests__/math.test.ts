@@ -4,7 +4,7 @@ test('compare', () => {
   expect(compare(1, 1)).toBe(0);
   expect(compare(1, 2)).toBeLessThan(0);
   expect(compare(2, 1)).toBeGreaterThan(0);
-  expect(compare(1, 1.01, 0.01)).toBe(0);
+  expect(compare(1, 1.01, 0.011)).toBe(0);
   expect(compare(1, 0.991, 0.01)).toBe(0);
   expect(compare(1, 1.011, 0.01)).toBeLessThan(0);
   expect(compare(1.011, 1, 0.01)).toBeGreaterThan(0);
@@ -16,7 +16,7 @@ test('compare3', () => {
   expect(compare3([1, 1, 2], [1, 1, 1])).toBeGreaterThan(0);
   expect(compare3([0.99, -999, -999], [1, 999, 999])).toBeLessThan(0);
   expect(compare3([1.01, 1, 1], [1, 999, 999])).toBeGreaterThan(0);
-  expect(compare3([1.01, 1, 1], [1, 999, 999], 0.01)).toBeLessThan(0);
+  expect(compare3([1.01, 1, 1], [1, 999, 999], 0.011)).toBeLessThan(0);
 });
 
 test('normalize3', () => {
