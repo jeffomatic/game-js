@@ -23,10 +23,6 @@ export function search<T>(sorted: T[], check: (item: T) => number): number {
   return -1;
 }
 
-export function makeDict<T>(vals: T[], compare: CompareFunc<T>): T[] {
-  return _.uniqWith(vals.slice().sort(compare), (a, b) => compare(a, b) === 0);
-}
-
 export function removeNonunique<T>(items: T[], compare: CompareFunc<T>): T[] {
   if (items.length < 2) {
     return items;
@@ -93,4 +89,8 @@ export function uniqSorted<T>(sorted: T[], compare: CompareFunc<T>): T[] {
   }
 
   return res;
+}
+
+export function makeDict<T>(vals: T[], compare: CompareFunc<T>): T[] {
+  return uniqSorted(vals.slice().sort(compare), compare);
 }
