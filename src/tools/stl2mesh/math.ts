@@ -6,12 +6,9 @@ export function compare(
   epsilon = defaultEpsilon,
 ): number {
   const diff = a - b;
-
-  // Scaled epsilon borrowed from gl-matrix's equal()
-  if (Math.abs(diff) <= epsilon * Math.max(1.0, Math.abs(a), Math.abs(b))) {
+  if (Math.abs(diff) <= epsilon) {
     return 0;
   }
-
   return diff;
 }
 
