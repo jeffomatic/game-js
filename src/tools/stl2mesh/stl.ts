@@ -6,6 +6,7 @@ import * as edgeFilter from './edge_filter';
 import * as math from './math';
 import { Mesh } from './mesh';
 import * as transform from './transform';
+import { Timer } from './debug';
 
 enum State {
   Start,
@@ -155,26 +156,47 @@ export function parse(buf: Buffer): number[][] {
   return isAscii(buf) ? parseAscii(buf) : parseBinary(buf);
 }
 
-export interface ConvertOpts {
+interface ConvertOpts {
   epsilon?: number;
   scale?: number;
+  verbose?: boolean;
 }
 
 export function convert(tris: number[][], opts: ConvertOpts = {}): Mesh {
   const epsilon = opts.epsilon || math.defaultEpsilon;
   const scale = opts.scale || 1;
+  const verbose = !!opts.verbose;
+
+  const timer = new Timer((tag: string, time: number) => {
+    if (!verbose) {
+      return;
+    }
+    console.error(`${tag}: ${time / 1000}s`);
+  });
+
+  if (verbose) {
+    console.error(`triangles: ${tris.length}`);
+  }
 
   const chunked = _.chunk(_.flatten(tris), 3);
-  const dict = array.makeDict(chunked, (a, b) => math.compare3(a, b, epsilon));
+  const dict = timer.measure('array.makeDict', () =>
+    array.makeDict(chunked, (a, b) => math.compare3(a, b, epsilon)),
+  );
 
   const flattenedDict = _.flatten(dict);
-  const centered = transform.center(flattenedDict);
-  const vertices = transform.scale(centered, scale, scale, scale);
+  const centered = timer.measure('transform.center', () =>
+    transform.center(flattenedDict),
+  );
+  const vertices = timer.measure('transform.scale', () =>
+    transform.scale(centered, scale, scale, scale),
+  );
 
   const triangleIndices = chunked.map(v =>
     array.search(dict, vert => math.compare3(v, vert, epsilon)),
   );
-  const lineIndices = edgeFilter.filter(dict, triangleIndices);
+  const lineIndices = timer.measure('edgeFilter.filter', () =>
+    edgeFilter.filter(dict, triangleIndices, { epsilon, verbose }),
+  );
 
   return { vertices, triangleIndices, lineIndices };
 }
